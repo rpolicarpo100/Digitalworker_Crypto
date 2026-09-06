@@ -1,11 +1,18 @@
 import { TechnicalIndicators } from "../engine/technical";
-import { OpportunityScoreBreakdown } from "../engine/scoring";
 import { RiskAnalysis } from "../engine/risk";
 import { TokenSecurityAudit } from "../engine/token-security";
 import { ArbitrageOpportunity } from "../engine/arbitrage";
 
 export interface GroundedAiResponse {
   answer: string;
+  userIntent: "BUY_SELL_ADVICE" | "TECHNICAL_ANALYSIS" | "RISK_AUDIT" | "DIVIDEND_FUNDAMENTALS" | "MARKET_GENERAL";
+  language: "PT" | "EN" | "FR";
+  tacticalRecommendation: {
+    bias: "BULLISH_LONG" | "BEARISH_SHORT" | "NEUTRAL_WAIT" | "CAUTION_RISK";
+    suggestedAction: string;
+    targetPriceUsd?: number;
+    invalidationStopUsd?: number;
+  };
   dataEvidence: Record<string, unknown>;
   sources: string[];
   confidence: "High" | "Medium" | "Low";
