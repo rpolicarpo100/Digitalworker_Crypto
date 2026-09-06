@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import Link from "next/link";
 import { GlobalMarket } from "../components/dashboard/GlobalMarket";
 import { PriceTicker } from "../components/dashboard/PriceTicker";
@@ -48,6 +48,8 @@ export default function Dashboard() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [paperMessage, setPaperMessage] = useState<string | null>(null);
 
+  const carouselRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     const saved = (localStorage.getItem("app_lang") as Language) || "pt";
     setLang(saved);
@@ -82,6 +84,13 @@ export default function Dashboard() {
   useEffect(() => {
     fetchOpps();
   }, [fetchOpps]);
+
+  const scrollCarousel = (direction: "left" | "right") => {
+    if (carouselRef.current) {
+      const scrollAmount = direction === "left" ? -280 : 280;
+      carouselRef.current.scrollBy({ left: scrollAmount, behavior: "smooth" });
+    }
+  };
 
   const toggleExpand = (id: string, asset: string) => {
     setSelectedAsset(asset);
@@ -210,7 +219,7 @@ export default function Dashboard() {
       <div className="relative z-10 grid grid-cols-1 lg:grid-cols-3 gap-3">
         {/* Left Column: Opportunities, Chart & AI Copilot (2 cols) */}
         <div className="lg:col-span-2 space-y-3">
-          {/* Cyber Opportunities Terminal */}
+          {/* Cyber Opportunities Terminal - HORIZONTAL SLIDING CAROUSEL */}
           <Card className="bg-[#070d1e]/80 backdrop-blur-xl border border-cyan-500/20 shadow-[0_0_30px_rgba(0,0,0,0.5)] rounded-xl overflow-hidden relative">
             <div className="absolute top-0 right-0 w-80 h-80 bg-cyan-500/5 rounded-full blur-3xl pointer-events-none" />
 
@@ -222,15 +231,37 @@ export default function Dashboard() {
                   [LIVE_TELEMETRY]
                 </Badge>
               </CardTitle>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={fetchOpps}
-                disabled={isRefreshing}
-                className="text-[9px] py-0.5 px-2 bg-[#0a1124] border-cyan-500/30 text-cyan-300 hover:bg-cyan-500/20 font-mono font-bold transition-all duration-300 rounded-lg"
-              >
-                {isRefreshing ? t.updatingBtn : t.updateBtn}
-              </Button>
+
+              {/* CAROUSEL SLIDER CONTROLS */}
+              <div className="flex items-center space-x-1 font-mono">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => scrollCarousel("left")}
+                  className="text-[10px] h-6 w-6 p-0 bg-[#0a1124] border-cyan-500/30 text-cyan-300 hover:bg-cyan-500/20 font-bold rounded-md"
+                  title="Slide Left"
+                >
+                  ←
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => scrollCarousel("right")}
+                  className="text-[10px] h-6 w-6 p-0 bg-[#0a1124] border-cyan-500/30 text-cyan-300 hover:bg-cyan-500/20 font-bold rounded-md"
+                  title="Slide Right"
+                >
+                  →
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={fetchOpps}
+                  disabled={isRefreshing}
+                  className="text-[9px] py-0.5 px-2 bg-[#0a1124] border-cyan-500/30 text-cyan-300 hover:bg-cyan-500/20 font-mono font-bold transition-all duration-300 rounded-lg ml-1"
+                >
+                  {isRefreshing ? t.updatingBtn : t.updateBtn}
+                </Button>
+              </div>
             </CardHeader>
 
             <CardContent className="p-2.5">
@@ -244,7 +275,11 @@ export default function Dashboard() {
                   {t.noOpportunities}
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                /* HORIZONTAL SCROLLING ROW / ANIMATED SLIDER CAROUSEL */
+                <div
+                  ref={carouselRef}
+                  className="flex items-center space-x-2.5 overflow-x-auto pb-1 scroll-smooth snap-x scrollbar-thin scrollbar-thumb-cyan-500/30 font-mono"
+                >
                   {opportunities.map((opp) => {
                     const isExpanded = expandedOppId === opp.opportunityId;
                     const isSelected = selectedAsset === opp.asset;
@@ -253,7 +288,7 @@ export default function Dashboard() {
                       <div
                         key={opp.opportunityId}
                         onClick={() => toggleExpand(opp.opportunityId, opp.asset)}
-                        className={`p-2 rounded-xl border transition-all duration-300 cursor-pointer relative group ${
+                        className={`min-w-[250px] max-w-[270px] shrink-0 snap-start p-2 rounded-xl border transition-all duration-300 cursor-pointer relative group ${
                           isSelected
                             ? "bg-gradient-to-br from-[#0c162d] via-[#0d1a36] to-[#081024] border-cyan-400/80 shadow-[0_0_15px_rgba(6,182,212,0.25)]"
                             : "bg-[#091022]/90 hover:bg-[#0c162e] border-slate-800/80 hover:border-cyan-500/40 shadow-sm"
