@@ -26,7 +26,7 @@
 }
 
 body {
-  background-color: #030712;
+  background-color: #02050e;
   color: #f1f5f9;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
   margin: 0;
@@ -35,13 +35,13 @@ body {
   overflow-x: hidden;
 }
 
-/* Fluid Keyframe Animations */
+/* Sci-Fi Futuristic Keyframe Animations */
 @keyframes neonPulse {
   0%, 100% {
-    box-shadow: 0 0 15px rgba(6, 182, 212, 0.2), inset 0 0 10px rgba(6, 182, 212, 0.1);
+    box-shadow: 0 0 15px rgba(6, 182, 212, 0.25), inset 0 0 10px rgba(6, 182, 212, 0.15);
   }
   50% {
-    box-shadow: 0 0 25px rgba(6, 182, 212, 0.5), inset 0 0 15px rgba(6, 182, 212, 0.25);
+    box-shadow: 0 0 30px rgba(6, 182, 212, 0.6), inset 0 0 20px rgba(6, 182, 212, 0.35);
   }
 }
 
@@ -59,6 +59,24 @@ body {
   100% {
     offset-distance: 100%;
   }
+}
+
+@keyframes scanlineHoriz {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@keyframes scanlineVert {
+  0% { top: 0%; }
+  100% { top: 100%; }
+}
+
+.animate-scanline {
+  animation: scanlineHoriz 4s linear infinite;
+}
+
+.animate-scanline-vertical {
+  animation: scanlineVert 8s linear infinite;
 }
 
 .animate-border-beam {
@@ -79,29 +97,29 @@ body {
   animation: shimmerSlide 2.5s infinite;
 }
 
-/* Custom smooth scrollbars */
+/* Custom smooth cyber scrollbars */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #030712;
+  background: #02050e;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(6, 182, 212, 0.3);
+  background: rgba(6, 182, 212, 0.4);
   border-radius: 4px;
   transition: background 0.3s ease;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(6, 182, 212, 0.7);
+  background: rgba(6, 182, 212, 0.8);
 }
 
-/* Smooth Card Hover Transforms */
+/* Smooth Card Hover Transforms & Futuristic Glow */
 .cyber-card {
   transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease, box-shadow 0.3s ease;
 }
 .cyber-card:hover {
-  transform: translateY(-2px) scale(1.01);
-  border-color: rgba(6, 182, 212, 0.6);
-  box-shadow: 0 10px 30px -10px rgba(6, 182, 212, 0.3);
+  transform: translateY(-2px) scale(1.015);
+  border-color: rgba(6, 182, 212, 0.7);
+  box-shadow: 0 12px 35px -10px rgba(6, 182, 212, 0.4);
 }

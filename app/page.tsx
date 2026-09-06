@@ -14,6 +14,8 @@ import { LanguageToggle } from "../components/ui/LanguageToggle";
 import { CardContent, CardHeader, CardTitle } from "../components/ui/card";
 import { SpotlightCard } from "../components/ui/SpotlightCard";
 import { BorderBeam } from "../components/ui/BorderBeam";
+import { QuantumTelemetryBar } from "../components/ui/QuantumTelemetryBar";
+import { HudFrame } from "../components/ui/HudFrame";
 import { Badge } from "../components/ui/badge";
 import { Button } from "../components/ui/button";
 import { translations, Language } from "../lib/i18n/translations";
@@ -144,28 +146,28 @@ export default function Dashboard() {
   };
 
   return (
-    <main className="flex-1 max-w-7xl w-full mx-auto p-3.5 space-y-3 bg-[#030712] min-h-screen text-slate-100 font-sans selection:bg-cyan-500 selection:text-black relative">
+    <main className="flex-1 max-w-7xl w-full mx-auto p-3.5 space-y-3 bg-[#02050e] min-h-screen text-slate-100 font-sans selection:bg-cyan-500 selection:text-black relative">
       {/* Header Banner */}
-      <header className="relative z-10 flex flex-wrap items-center justify-between border border-cyan-500/20 bg-[#070d1e]/80 backdrop-blur-xl p-3 rounded-2xl shadow-[0_0_30px_rgba(6,182,212,0.08)]">
+      <header className="relative z-10 flex flex-wrap items-center justify-between border border-cyan-500/30 bg-[#060c1d]/90 backdrop-blur-xl p-3 rounded-2xl shadow-[0_0_35px_rgba(6,182,212,0.12)]">
         <div className="flex items-center space-x-3">
-          <div className="relative flex items-center justify-center w-9 h-9 rounded-xl bg-gradient-to-br from-cyan-500/20 via-blue-600/20 to-emerald-500/20 border border-cyan-400/40 shadow-[0_0_15px_rgba(6,182,212,0.3)] font-mono font-black text-cyan-300 text-base">
+          <div className="relative flex items-center justify-center w-9 h-9 rounded-xl bg-gradient-to-br from-cyan-500/30 via-blue-600/20 to-emerald-500/30 border border-cyan-400/50 shadow-[0_0_20px_rgba(6,182,212,0.4)] font-mono font-black text-cyan-300 text-base">
             ⚡
-            <span className="absolute -top-1 -right-1 w-2 h-2 bg-cyan-400 rounded-full animate-ping" />
+            <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-cyan-400 rounded-full animate-ping" />
           </div>
 
           <div>
             <div className="flex items-center space-x-2">
               <h1 className="text-lg font-black tracking-tight text-white font-mono uppercase bg-gradient-to-r from-cyan-300 via-sky-100 to-emerald-300 bg-clip-text text-transparent">
-                DIGITAL WORKER // MULTI-ASSET FINANCIAL INTELLIGENCE
+                GOD // GLOBAL OPPORTUNITY & DATA INTELLIGENCE
               </h1>
-              <span className="text-[8px] font-mono px-1.5 py-0.5 rounded bg-cyan-950/80 border border-cyan-500/40 text-cyan-300 font-bold uppercase tracking-widest">
-                [SYS_CORE: v1.0]
+              <span className="text-[8px] font-mono px-1.5 py-0.5 rounded bg-cyan-950/80 border border-cyan-500/40 text-cyan-300 font-bold uppercase tracking-widest shadow-[0_0_10px_rgba(6,182,212,0.3)]">
+                [QUANTUM_CORE: ONLINE]
               </span>
             </div>
             <p className="text-[9px] text-slate-400 font-mono flex items-center space-x-2 mt-0.5">
-              <span className="text-emerald-400 font-bold">[MULTI-ASSET ENGINE]</span>
+              <span className="text-emerald-400 font-bold">[MULTI-ASSET COCKPIT]</span>
               <span>•</span>
-              <span className="text-slate-500">ANALYSIS ONLY • NO ORDER EXECUTION</span>
+              <span className="text-slate-500">ANALYSIS FIRST • NOISE → SIGNAL → EVIDENCE</span>
             </p>
           </div>
         </div>
@@ -212,6 +214,11 @@ export default function Dashboard() {
         </div>
       </header>
 
+      {/* Quantum Real-time Telemetry Bar */}
+      <div className="relative z-10">
+        <QuantumTelemetryBar />
+      </div>
+
       {/* Global Market Bar & Ticker */}
       <div className="relative z-10">
         <GlobalMarket />
@@ -246,8 +253,8 @@ export default function Dashboard() {
               <CardTitle className="text-xs font-black font-mono tracking-wider uppercase flex items-center space-x-2">
                 <span className="text-cyan-400 font-bold animate-pulse">◈</span>
                 <span className="text-slate-100">{t.liveOpportunities}</span>
-                <Badge variant="success" className="text-[8px] font-mono font-bold py-0.5 px-1.5 bg-emerald-950 border border-emerald-500/50 text-emerald-400">
-                  [AUTO_ROTATE: LIVE]
+                <Badge variant="success" className="text-[8px] font-mono font-bold py-0.5 px-1.5 bg-emerald-950 border border-emerald-500/50 text-emerald-400 shadow-[0_0_10px_rgba(16,185,129,0.3)]">
+                  [QUANTUM_ROTATE: LIVE]
                 </Badge>
               </CardTitle>
 
@@ -421,10 +428,14 @@ export default function Dashboard() {
           <AiCopilot />
         </div>
 
-        {/* Right Column: Orderbook Depth & Compact Horizontal Risk Radar */}
+        {/* Right Column: Orderbook Depth & Compact Horizontal Risk Radar wrapped in HudFrame */}
         <div className="space-y-3">
-          <OrderBookVisualizer symbol={selectedAsset} />
-          <RiskRadar symbol={selectedAsset} />
+          <HudFrame title="ORDERBOOK DEPTH VISUALIZER" subtitle="LIVE DEPTH" accentColor="cyan">
+            <OrderBookVisualizer symbol={selectedAsset} />
+          </HudFrame>
+          <HudFrame title="RISK RADAR TELEMETRY" subtitle="MONTE CARLO" accentColor="emerald">
+            <RiskRadar symbol={selectedAsset} />
+          </HudFrame>
         </div>
       </div>
     </main>
