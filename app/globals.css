@@ -55,6 +55,16 @@ body {
   50% { transform: translateY(-4px); }
 }
 
+@keyframes borderBeam {
+  100% {
+    offset-distance: 100%;
+  }
+}
+
+.animate-border-beam {
+  animation: borderBeam var(--duration) linear infinite;
+}
+
 .animate-neon-pulse {
   animation: neonPulse 3s infinite ease-in-out;
 }

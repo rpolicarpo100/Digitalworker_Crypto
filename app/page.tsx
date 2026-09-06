@@ -11,7 +11,9 @@ import { PriceChart } from "../components/dashboard/PriceChart";
 import { OrderBookVisualizer } from "../components/dashboard/OrderBookVisualizer";
 import { RiskRadar } from "../components/dashboard/RiskRadar";
 import { LanguageToggle } from "../components/ui/LanguageToggle";
-import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
+import { CardContent, CardHeader, CardTitle } from "../components/ui/card";
+import { SpotlightCard } from "../components/ui/SpotlightCard";
+import { BorderBeam } from "../components/ui/BorderBeam";
 import { Badge } from "../components/ui/badge";
 import { Button } from "../components/ui/button";
 import { translations, Language } from "../lib/i18n/translations";
@@ -143,8 +145,6 @@ export default function Dashboard() {
 
   return (
     <main className="flex-1 max-w-7xl w-full mx-auto p-3.5 space-y-3 bg-[#030712] min-h-screen text-slate-100 font-sans selection:bg-cyan-500 selection:text-black relative">
-      <div className="fixed inset-0 bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:24px_24px] opacity-25 pointer-events-none z-0" />
-
       {/* Header Banner */}
       <header className="relative z-10 flex flex-wrap items-center justify-between border border-cyan-500/20 bg-[#070d1e]/80 backdrop-blur-xl p-3 rounded-2xl shadow-[0_0_30px_rgba(6,182,212,0.08)]">
         <div className="flex items-center space-x-3">
@@ -238,9 +238,9 @@ export default function Dashboard() {
       <div className="relative z-10 grid grid-cols-1 lg:grid-cols-3 gap-3">
         {/* Left Column: Opportunities, Chart & AI Copilot (2 cols) */}
         <div className="lg:col-span-2 space-y-3">
-          {/* Cyber Opportunities Terminal - HORIZONTAL ANIMATED SLIDING CAROUSEL */}
-          <Card className="bg-[#070d1e]/80 backdrop-blur-xl border border-cyan-500/20 shadow-[0_0_30px_rgba(0,0,0,0.5)] rounded-xl overflow-hidden relative">
-            <div className="absolute top-0 right-0 w-80 h-80 bg-cyan-500/5 rounded-full blur-3xl pointer-events-none" />
+          {/* Cyber Opportunities Terminal - SPOTLIGHT CARD & BORDER BEAM */}
+          <SpotlightCard className="bg-[#070d1e]/80 backdrop-blur-xl border border-cyan-500/30 shadow-[0_0_30px_rgba(0,0,0,0.5)] rounded-xl overflow-hidden relative">
+            <BorderBeam size={250} duration={10} colorFrom="#06b6d4" colorTo="#10b981" />
 
             <CardHeader className="flex flex-row items-center justify-between py-1.5 px-3 border-b border-slate-800/80">
               <CardTitle className="text-xs font-black font-mono tracking-wider uppercase flex items-center space-x-2">
@@ -412,7 +412,7 @@ export default function Dashboard() {
                 </div>
               )}
             </CardContent>
-          </Card>
+          </SpotlightCard>
 
           {/* Real-time SVG / TradingView Price Chart */}
           <PriceChart symbol={selectedAsset} />
