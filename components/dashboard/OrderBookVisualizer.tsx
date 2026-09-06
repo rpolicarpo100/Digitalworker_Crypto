@@ -1,9 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Badge } from "../ui/badge";
-import { OrderBookIcon, EnergyBoltIcon } from "../ui/Icons";
 
 interface OrderBookData {
   spread: number;
@@ -20,8 +18,6 @@ export function OrderBookVisualizer({ symbol = "BTC" }: { symbol?: string }) {
   const [isPulsing, setIsPulsing] = useState<boolean>(false);
 
   useEffect(() => {
-    let timer: NodeJS.Timeout;
-
     async function loadOrderBook() {
       try {
         const res = await fetch(`/api/market/orderbook?symbol=${symbol}&limit=10`);
@@ -38,8 +34,7 @@ export function OrderBookVisualizer({ symbol = "BTC" }: { symbol?: string }) {
     }
 
     loadOrderBook();
-    // Live sub-second loop: poll every 3 seconds for active depth updates
-    timer = setInterval(loadOrderBook, 3000);
+    const timer = setInterval(loadOrderBook, 3000);
     return () => clearInterval(timer);
   }, [symbol]);
 
@@ -55,106 +50,90 @@ export function OrderBookVisualizer({ symbol = "BTC" }: { symbol?: string }) {
   const askPercent = 100 - bidPercent;
 
   return (
-    <Card className="bg-[#070d1e]/80 backdrop-blur-xl border border-cyan-500/20 shadow-xl rounded-2xl overflow-hidden relative">
-      <CardHeader className="pb-2.5 border-b border-slate-800/80">
-        <CardTitle className="text-sm font-black font-mono uppercase tracking-wider flex items-center justify-between">
-          <span className="flex items-center space-x-2">
-            <OrderBookIcon className="w-4 h-4" />
-            <span className="text-slate-100">ORDERBOOK DEPTH ({symbol})</span>
-            {isPulsing && <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />}
-          </span>
-          <Badge variant="outline" className="text-[9px] font-mono border-cyan-500/40 text-cyan-300 font-bold bg-cyan-950/60">
-            SPREAD: {data.spreadPercent.toFixed(4)}%
-          </Badge>
-        </CardTitle>
-      </CardHeader>
+    <div className="bg-[#050814]/90 border border-slate-800 rounded-xl p-3 font-mono space-y-3">
+      {/* Orderbook Header */}
+      <div className="flex items-center justify-between border-b border-slate-800/80 pb-2">
+        <div className="flex items-center space-x-2">
+          <span className={`w-1.5 h-1.5 rounded-full ${isPulsing ? "bg-sky-400" : "bg-slate-600"}`} />
+          <span className="text-xs font-black tracking-wider uppercase text-slate-100">ORDERBOOK DEPTH ({symbol})</span>
+        </div>
+        <Badge variant="outline" className="text-[9px] font-mono border-slate-700 text-sky-400 font-bold bg-slate-900/60">
+          SPREAD: {data.spreadPercent.toFixed(4)}%
+        </Badge>
+      </div>
 
-      <CardContent className="pt-3.5 space-y-3.5 text-xs font-mono">
-        {/* Dynamic Pressure Bar with Micro-Glow */}
-        <div>
-          <div className="flex justify-between text-[10px] mb-1 font-bold">
-            <span className="text-emerald-400 flex items-center space-x-1">
-              <EnergyBoltIcon className="w-3 h-3 text-emerald-400" />
-              <span>BUY BIDS {bidPercent}%</span>
-            </span>
-            <span className="text-rose-400 flex items-center space-x-1">
-              <span>SELL ASKS {askPercent}%</span>
-              <EnergyBoltIcon className="w-3 h-3 text-rose-400" />
-            </span>
-          </div>
+      {/* Dynamic Pressure Bar */}
+      <div className="space-y-1">
+        <div className="flex justify-between text-[9px] font-bold">
+          <span className="text-emerald-400">BIDS {bidPercent}%</span>
+          <span className="text-rose-400">ASKS {askPercent}%</span>
+        </div>
+        <div className="w-full h-2 bg-[#02040a] rounded flex overflow-hidden p-0.5 border border-slate-800/80">
+          <div
+            className="bg-emerald-500/80 transition-all duration-500 rounded-l"
+            style={{ width: `${bidPercent}%` }}
+          />
+          <div
+            className="bg-rose-500/80 transition-all duration-500 rounded-r"
+            style={{ width: `${askPercent}%` }}
+          />
+        </div>
+      </div>
 
-          <div className="w-full h-3 bg-[#040814] rounded-lg flex overflow-hidden p-0.5 border border-slate-800">
-            <div
-              className="bg-gradient-to-r from-emerald-600 to-emerald-400 rounded-l transition-all duration-700 shadow-[0_0_10px_rgba(16,185,129,0.5)]"
-              style={{ width: `${bidPercent}%` }}
-            />
-            <div
-              className="bg-gradient-to-r from-rose-400 to-rose-600 rounded-r transition-all duration-700 shadow-[0_0_10px_rgba(244,63,94,0.5)]"
-              style={{ width: `${askPercent}%` }}
-            />
+      {/* Live Depth Tables */}
+      <div className="grid grid-cols-2 gap-2 text-[10px]">
+        {/* Bids */}
+        <div className="space-y-1 bg-[#02040a] p-2 rounded-lg border border-slate-800/80">
+          <div className="flex justify-between text-[8px] text-emerald-400 font-bold uppercase pb-1 border-b border-slate-800">
+            <span>Bid Price</span>
+            <span>Qty</span>
           </div>
+          {data.bids.slice(0, 5).map((b, i) => {
+            const depthRatio = (b.qty / maxBidQty) * 100;
+            return (
+              <div key={i} className="relative flex justify-between py-0.5 px-1 rounded overflow-hidden">
+                <div
+                  className="absolute inset-y-0 right-0 bg-emerald-500/10 transition-all duration-200"
+                  style={{ width: `${depthRatio}%` }}
+                />
+                <span className="text-emerald-400 font-bold relative z-10 tabular-nums">
+                  ${b.price > 10 ? b.price.toLocaleString(undefined, { minimumFractionDigits: 2 }) : b.price.toFixed(4)}
+                </span>
+                <span className="text-slate-400 relative z-10 tabular-nums">{b.qty.toFixed(2)}</span>
+              </div>
+            );
+          })}
         </div>
 
-        {/* Live Depth Heatmap Tables */}
-        <div className="grid grid-cols-2 gap-2 text-[11px]">
-          {/* Bids (Buyers) Column */}
-          <div className="space-y-1 bg-[#040814] p-2.5 rounded-xl border border-slate-800 relative">
-            <div className="flex justify-between text-[9px] text-emerald-400 font-black uppercase mb-1.5 border-b border-emerald-500/30 pb-1">
-              <span>Bids (Buyers)</span>
-              <span>Amount</span>
-            </div>
-            {data.bids.slice(0, 6).map((b, i) => {
-              const depthRatio = (b.qty / maxBidQty) * 100;
-              return (
-                <div key={i} className="relative flex justify-between py-1 px-1.5 rounded overflow-hidden group">
-                  {/* Depth Background Bar */}
-                  <div
-                    className="absolute inset-y-0 right-0 bg-emerald-500/15 transition-all duration-300 rounded-r"
-                    style={{ width: `${depthRatio}%` }}
-                  />
-                  <span className="text-emerald-400 font-extrabold relative z-10 group-hover:text-emerald-300">
-                    ${b.price > 10 ? b.price.toLocaleString() : b.price.toFixed(4)}
-                  </span>
-                  <span className="text-slate-300 font-bold relative z-10">{b.qty.toFixed(3)}</span>
-                </div>
-              );
-            })}
+        {/* Asks */}
+        <div className="space-y-1 bg-[#02040a] p-2 rounded-lg border border-slate-800/80">
+          <div className="flex justify-between text-[8px] text-rose-400 font-bold uppercase pb-1 border-b border-slate-800">
+            <span>Ask Price</span>
+            <span>Qty</span>
           </div>
-
-          {/* Asks (Sellers) Column */}
-          <div className="space-y-1 bg-[#040814] p-2.5 rounded-xl border border-slate-800 relative">
-            <div className="flex justify-between text-[9px] text-rose-400 font-black uppercase mb-1.5 border-b border-rose-500/30 pb-1">
-              <span>Asks (Sellers)</span>
-              <span>Amount</span>
-            </div>
-            {data.asks.slice(0, 6).map((a, i) => {
-              const depthRatio = (a.qty / maxAskQty) * 100;
-              return (
-                <div key={i} className="relative flex justify-between py-1 px-1.5 rounded overflow-hidden group">
-                  {/* Depth Background Bar */}
-                  <div
-                    className="absolute inset-y-0 left-0 bg-rose-500/15 transition-all duration-300 rounded-l"
-                    style={{ width: `${depthRatio}%` }}
-                  />
-                  <span className="text-rose-400 font-extrabold relative z-10 group-hover:text-rose-300">
-                    ${a.price > 10 ? a.price.toLocaleString() : a.price.toFixed(4)}
-                  </span>
-                  <span className="text-slate-300 font-bold relative z-10">{a.qty.toFixed(3)}</span>
-                </div>
-              );
-            })}
-          </div>
+          {data.asks.slice(0, 5).map((a, i) => {
+            const depthRatio = (a.qty / maxAskQty) * 100;
+            return (
+              <div key={i} className="relative flex justify-between py-0.5 px-1 rounded overflow-hidden">
+                <div
+                  className="absolute inset-y-0 left-0 bg-rose-500/10 transition-all duration-200"
+                  style={{ width: `${depthRatio}%` }}
+                />
+                <span className="text-rose-400 font-bold relative z-10 tabular-nums">
+                  ${a.price > 10 ? a.price.toLocaleString(undefined, { minimumFractionDigits: 2 }) : a.price.toFixed(4)}
+                </span>
+                <span className="text-slate-400 relative z-10 tabular-nums">{a.qty.toFixed(2)}</span>
+              </div>
+            );
+          })}
         </div>
+      </div>
 
-        {/* Live Stream Footnote */}
-        <div className="flex justify-between items-center text-[9px] text-slate-500 pt-1 border-t border-slate-800/60">
-          <span className="flex items-center space-x-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            <span>LIVE_WEBSOCKET_FEED (BINANCE)</span>
-          </span>
-          <span>UPDATED: {lastUpdate}</span>
-        </div>
-      </CardContent>
-    </Card>
+      {/* Footer Meta */}
+      <div className="flex justify-between items-center text-[8px] text-slate-500 pt-1 border-t border-slate-800/60">
+        <span className="text-slate-400">FEED: BINANCE WEBSOCKET</span>
+        <span>UPDATED: {lastUpdate}</span>
+      </div>
+    </div>
   );
 }

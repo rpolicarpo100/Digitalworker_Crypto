@@ -5,15 +5,18 @@ import { Button } from "./button";
 import { Language } from "../../lib/i18n/translations";
 
 export function LanguageToggle() {
-  const [lang, setLang] = useState<Language>("pt");
-
-  useEffect(() => {
+  const [lang, setLang] = useState<Language>(() => {
+    if (typeof window === "undefined") return "pt";
     const saved = localStorage.getItem("app_lang") as Language;
     if (saved && (saved === "pt" || saved === "en" || saved === "fr")) {
-      setLang(saved);
-      document.cookie = `app_lang=${saved}; path=/`;
+      return saved;
     }
-  }, []);
+    return "pt";
+  });
+
+  useEffect(() => {
+    document.cookie = `app_lang=${lang}; path=/`;
+  }, [lang]);
 
   const toggleLanguage = (newLang: Language) => {
     setLang(newLang);
@@ -23,12 +26,12 @@ export function LanguageToggle() {
   };
 
   return (
-    <div className="flex items-center space-x-1 border border-slate-800 rounded p-0.5 bg-[#080d19]">
+    <div className="flex items-center space-x-1 border border-slate-800 rounded p-0.5 bg-[#050914] font-mono">
       <Button
         variant={lang === "pt" ? "default" : "ghost"}
         size="sm"
         onClick={() => toggleLanguage("pt")}
-        className="px-2 py-0.5 text-[11px] h-6 font-bold"
+        className={`px-1.5 py-0.5 text-[10px] h-5 font-bold rounded ${lang === "pt" ? "bg-sky-700 text-white" : "text-slate-400 hover:text-white"}`}
       >
         PT
       </Button>
@@ -36,7 +39,7 @@ export function LanguageToggle() {
         variant={lang === "en" ? "default" : "ghost"}
         size="sm"
         onClick={() => toggleLanguage("en")}
-        className="px-2 py-0.5 text-[11px] h-6 font-bold"
+        className={`px-1.5 py-0.5 text-[10px] h-5 font-bold rounded ${lang === "en" ? "bg-sky-700 text-white" : "text-slate-400 hover:text-white"}`}
       >
         EN
       </Button>
@@ -44,7 +47,7 @@ export function LanguageToggle() {
         variant={lang === "fr" ? "default" : "ghost"}
         size="sm"
         onClick={() => toggleLanguage("fr")}
-        className="px-2 py-0.5 text-[11px] h-6 font-bold"
+        className={`px-1.5 py-0.5 text-[10px] h-5 font-bold rounded ${lang === "fr" ? "bg-sky-700 text-white" : "text-slate-400 hover:text-white"}`}
       >
         FR
       </Button>

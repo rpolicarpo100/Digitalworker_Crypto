@@ -41,7 +41,11 @@ interface ArbitrageData {
 }
 
 export default function DexTerminal() {
-  const [lang, setLang] = useState<Language>("pt");
+  const [lang] = useState<Language>(() => {
+    if (typeof window === "undefined") return "pt";
+    return (localStorage.getItem("app_lang") as Language) || "pt";
+  });
+
   const [activeTab, setActiveTab] = useState<"pools" | "arbitrage">("pools");
   const [query, setQuery] = useState("SOL");
   const [selectedChain, setSelectedChain] = useState<string>("ALL");
@@ -49,19 +53,6 @@ export default function DexTerminal() {
   const [arbData, setArbData] = useState<ArbitrageData | null>(null);
   const [loading, setLoading] = useState(false);
   const [selectedPair, setSelectedPair] = useState<DexPair | null>(null);
-
-  useEffect(() => {
-    const saved = (localStorage.getItem("app_lang") as Language) || "pt";
-    setLang(saved);
-
-    const handleLangChange = () => {
-      const current = (localStorage.getItem("app_lang") as Language) || "pt";
-      setLang(current);
-    };
-
-    window.addEventListener("languageChange", handleLangChange);
-    return () => window.removeEventListener("languageChange", handleLangChange);
-  }, []);
 
   const t = translations[lang];
 
@@ -107,10 +98,24 @@ export default function DexTerminal() {
     }
   }, [fetchTrendingPools]);
 
-  // Auto-load top real rating/trending pools on page load
   useEffect(() => {
-    fetchTrendingPools();
-  }, [fetchTrendingPools]);
+    let isMounted = true;
+    async function load() {
+      try {
+        const res = await fetch("/api/market/dex/trending");
+        if (res.ok && isMounted) {
+          const json = await res.json();
+          setPairs(json.pairs || []);
+        }
+      } catch (err) {
+        console.error("DEX trending fetch failed:", err);
+      }
+    }
+    load();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const filteredPairs = selectedChain === "ALL"
     ? pairs
@@ -121,7 +126,7 @@ export default function DexTerminal() {
       <div className="fixed inset-0 bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:24px_24px] opacity-25 pointer-events-none z-0" />
 
       {/* Cyber Header Banner */}
-      <div className="relative z-10 flex flex-wrap items-center justify-between border border-cyan-500/20 bg-[#070d1e]/80 backdrop-blur-xl p-3.5 rounded-2xl shadow-[0_0_30px_rgba(6,182,212,0.08)]">
+      <div className="relative z-10 flex flex-wrap items-center justify-between border border-cyan-500/20 bg-[#070d1e]/80 backdrop-blur-xl p-3.5 rounded-2xl shadow-[0_0_30px_rgba(6,182,212,0.08)] font-mono">
         <div className="flex items-center space-x-3">
           <Link href="/">
             <Button variant="outline" size="sm" className="bg-[#0b142b] border-cyan-500/40 text-cyan-300 hover:bg-cyan-500 hover:text-black font-mono font-bold text-xs transition-all duration-300 rounded-xl">
@@ -129,7 +134,6 @@ export default function DexTerminal() {
             </Button>
           </Link>
           <div className="flex items-center space-x-2">
-            <span className="text-xl">❖</span>
             <h1 className="text-xl font-black font-mono tracking-tight text-white uppercase bg-gradient-to-r from-cyan-300 via-sky-100 to-emerald-300 bg-clip-text text-transparent">
               {t.dexTitle}
             </h1>
@@ -147,7 +151,7 @@ export default function DexTerminal() {
               onClick={() => setActiveTab("pools")}
               className={`text-xs font-mono font-bold px-3 ${activeTab === "pools" ? "bg-cyan-600 text-white shadow-[0_0_12px_rgba(6,182,212,0.4)]" : "text-slate-400"}`}
             >
-              🌊 {t.poolsTab}
+              {t.poolsTab}
             </Button>
             <Button
               variant={activeTab === "arbitrage" ? "default" : "ghost"}
@@ -155,7 +159,7 @@ export default function DexTerminal() {
               onClick={() => setActiveTab("arbitrage")}
               className={`text-xs font-mono font-bold px-3 ${activeTab === "arbitrage" ? "bg-cyan-600 text-white shadow-[0_0_12px_rgba(6,182,212,0.4)]" : "text-slate-400"}`}
             >
-              ⚡ {t.arbTab}
+              {t.arbTab}
             </Button>
           </div>
           <LanguageToggle />
@@ -163,7 +167,7 @@ export default function DexTerminal() {
       </div>
 
       {/* Cyber Search & Filter Bar */}
-      <div className="relative z-10 space-y-3 bg-[#070d1e]/80 p-3.5 rounded-2xl border border-cyan-500/20 backdrop-blur-xl shadow-lg">
+      <div className="relative z-10 space-y-3 bg-[#070d1e]/80 p-3.5 rounded-2xl border border-cyan-500/20 backdrop-blur-xl shadow-lg font-mono">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center space-x-2 flex-1">
             <Input
@@ -174,11 +178,11 @@ export default function DexTerminal() {
               className="max-w-md bg-[#040814] border-slate-800 text-xs font-mono focus:border-cyan-400 text-slate-100"
             />
             <Button onClick={() => handleSearch(query)} size="sm" className="text-xs bg-cyan-600 hover:bg-cyan-500 font-mono font-bold px-4 shadow-[0_0_12px_rgba(6,182,212,0.4)]">
-              🔍 {t.searchBtn}
+              {t.searchBtn}
             </Button>
           </div>
           <Button variant="outline" size="sm" onClick={fetchTrendingPools} className="text-xs bg-[#0b142b] border-cyan-500/30 text-cyan-300 font-mono font-bold hover:bg-cyan-500 hover:text-black">
-            🔄 {t.topRealRatingBtn}
+            {t.topRealRatingBtn}
           </Button>
         </div>
 
@@ -203,10 +207,9 @@ export default function DexTerminal() {
 
       {/* Main Tab Content */}
       {activeTab === "pools" ? (
-        <Card className="relative z-10 bg-[#070d1e]/80 backdrop-blur-xl border border-cyan-500/20 shadow-xl rounded-2xl overflow-hidden">
+        <Card className="relative z-10 bg-[#070d1e]/80 backdrop-blur-xl border border-cyan-500/20 shadow-xl rounded-2xl overflow-hidden font-mono">
           <CardHeader className="flex flex-row items-center justify-between pb-3 border-b border-slate-800/80">
             <CardTitle className="text-sm font-black font-mono tracking-wider uppercase flex items-center space-x-2">
-              <span className="text-cyan-400">❖</span>
               <span>REAL TOP RATING POOLS ({query || "TRENDING"})</span>
               <Badge variant="outline" className="text-[9px] font-mono border-cyan-500/40 text-cyan-300 font-bold">
                 [LIVE_DEX_AUDIT]
@@ -254,102 +257,57 @@ export default function DexTerminal() {
                       });
 
                       return (
-                        <>
-                          <tr
-                            key={`${p.pairAddress}_${idx}`}
-                            onClick={() => setSelectedPair(isSelected ? null : p)}
-                            className={`hover:bg-[#0c162e] cursor-pointer transition-all duration-200 ${
-                              isSelected ? "bg-[#0f1d3e] shadow-inner" : ""
-                            }`}
-                          >
-                            <td className="py-3 px-3 font-bold text-slate-100">
-                              <div className="flex items-center space-x-2">
-                                <div className="w-7 h-7 rounded-lg bg-cyan-950/80 border border-cyan-500/40 flex items-center justify-center font-bold text-[10px] text-cyan-300 font-mono">
-                                  {p.baseToken.symbol.slice(0, 2)}
-                                </div>
-                                <div>
-                                  <span className="font-black text-sm text-slate-100 block font-mono">
-                                    {p.baseToken.symbol} / {p.quoteToken.symbol}
-                                  </span>
-                                  <span className="text-[10px] text-slate-400 font-sans block truncate max-w-[120px]">
-                                    {p.baseToken.name}
-                                  </span>
-                                </div>
+                        <tr
+                          key={`${p.pairAddress}_${idx}`}
+                          onClick={() => setSelectedPair(isSelected ? null : p)}
+                          className={`hover:bg-[#0c162e] cursor-pointer transition-all duration-200 ${
+                            isSelected ? "bg-[#0f1d3e] shadow-inner" : ""
+                          }`}
+                        >
+                          <td className="py-3 px-3 font-bold text-slate-100">
+                            <div className="flex items-center space-x-2">
+                              <div className="w-7 h-7 rounded-lg bg-cyan-950/80 border border-cyan-500/40 flex items-center justify-center font-bold text-[10px] text-cyan-300 font-mono">
+                                {p.baseToken.symbol.slice(0, 2)}
                               </div>
-                            </td>
-                            <td className="py-3 px-3 text-slate-400 uppercase">
-                              <Badge variant="outline" className="text-[9px] font-mono px-2 py-0.5 border-blue-500/40 text-blue-300 font-bold">
-                                {p.chainId}
-                              </Badge>
-                              <span className="text-[10px] text-slate-400 block font-bold mt-0.5">{p.dexId}</span>
-                            </td>
-                            <td className="py-3 px-3 font-mono text-emerald-400 font-black text-sm">
-                              ${parseFloat(p.priceUsd || "0") > 0.01
-                                ? parseFloat(p.priceUsd).toFixed(4)
-                                : parseFloat(p.priceUsd || "0").toFixed(8)}
-                            </td>
-                            <td className="py-3 px-3 text-slate-200 font-bold">
-                              ${p.volume24h.toLocaleString()}
-                            </td>
-                            <td className="py-3 px-3 text-slate-200 font-bold">
-                              ${p.liquidityUsd.toLocaleString()}
-                            </td>
-                            <td className={p.priceChange24h >= 0 ? "py-3 px-3 text-emerald-400 font-black" : "py-3 px-3 text-rose-400 font-black"}>
-                              {p.priceChange24h >= 0 ? `+${p.priceChange24h.toFixed(2)}%` : `${p.priceChange24h.toFixed(2)}%`}
-                            </td>
-                            <td className="py-3 px-3">
-                              <Badge
-                                variant={mevSim.mevThreatLevel === "HIGH" || mevSim.mevThreatLevel === "CRITICAL" ? "destructive" : "success"}
-                                className="text-[9px] font-mono font-bold"
-                              >
-                                [{mevSim.mevThreatLevel}]
-                              </Badge>
-                            </td>
-                          </tr>
-
-                          {/* Expanded Cyber Security Drawer */}
-                          {isSelected && (
-                            <tr key={`${p.pairAddress}_detail`}>
-                              <td colSpan={7} className="p-4 bg-[#030610] border-y border-slate-800 font-sans text-xs animate-in fade-in duration-200">
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                                  <div className="p-3 bg-[#070d1e] rounded-xl border border-slate-800 space-y-1.5 font-mono">
-                                    <span className="text-emerald-400 font-bold block text-[11px] uppercase">[TOKEN_SECURITY_AUDIT]:</span>
-                                    <div className="text-[11px] text-slate-300 space-y-1">
-                                      <p>• HONEYPOT: <span className="text-emerald-400 font-bold">PASSED (0% TAX)</span></p>
-                                      <p>• MINT_FUNCTION: <span className="text-emerald-400 font-bold">DISABLED</span></p>
-                                      <p>• LIQUIDITY_LOCK: <span className="text-emerald-400 font-bold">LOCKED &gt; 1 YEAR</span></p>
-                                    </div>
-                                  </div>
-
-                                  <div className="p-3 bg-[#070d1e] rounded-xl border border-slate-800 space-y-1.5 font-mono">
-                                    <span className="text-cyan-400 font-bold block text-[11px] uppercase">[EXECUTION_SLIPPAGE_SIM]:</span>
-                                    <div className="text-[11px] text-slate-300 space-y-1">
-                                      <p>• PRICE_IMPACT: <span className={mevSim.priceImpactPercent > 2 ? "text-rose-400 font-bold" : "text-emerald-400 font-bold"}>{mevSim.priceImpactPercent.toFixed(2)}%</span></p>
-                                      <p>• EST_GAS: <span className="text-slate-100 font-bold">${mevSim.estimatedGasFeeUsd.toFixed(2)}</span></p>
-                                      <p>• NET_REALIZED_EDGE: <span className={mevSim.realisticNetEdgePercent > 0 ? "text-emerald-400 font-bold" : "text-rose-400 font-bold"}>{mevSim.realisticNetEdgePercent.toFixed(2)}%</span></p>
-                                    </div>
-                                  </div>
-
-                                  <div className="p-3 bg-[#070d1e] rounded-xl border border-slate-800 space-y-1.5 font-mono">
-                                    <span className="text-amber-400 font-bold block text-[11px] uppercase">[POOL_CONTRACT]:</span>
-                                    <p className="text-[10px] text-slate-400 font-mono break-all bg-[#030610] p-1.5 rounded border border-slate-800">{p.pairAddress}</p>
-                                    <div className="pt-1 flex items-center space-x-2 font-mono">
-                                      <a
-                                        href={`https://dexscreener.com/${p.chainId}/${p.pairAddress}`}
-                                        target="_blank"
-                                        rel="noreferrer"
-                                        className="text-cyan-400 hover:text-cyan-300 font-bold text-[11px] flex items-center space-x-1 hover:underline"
-                                      >
-                                        <span>DEX Screener</span>
-                                        <span>↗</span>
-                                      </a>
-                                    </div>
-                                  </div>
-                                </div>
-                              </td>
-                            </tr>
-                          )}
-                        </>
+                              <div>
+                                <span className="font-black text-sm text-slate-100 block font-mono">
+                                  {p.baseToken.symbol} / {p.quoteToken.symbol}
+                                </span>
+                                <span className="text-[10px] text-slate-400 font-sans block truncate max-w-[120px]">
+                                  {p.baseToken.name}
+                                </span>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="py-3 px-3 text-slate-400 uppercase">
+                            <Badge variant="outline" className="text-[9px] font-mono px-2 py-0.5 border-blue-500/40 text-blue-300 font-bold">
+                              {p.chainId}
+                            </Badge>
+                            <span className="text-[10px] text-slate-400 block font-bold mt-0.5">{p.dexId}</span>
+                          </td>
+                          <td className="py-3 px-3 font-mono text-emerald-400 font-black text-sm">
+                            ${parseFloat(p.priceUsd || "0") > 0.01
+                              ? parseFloat(p.priceUsd).toFixed(4)
+                              : parseFloat(p.priceUsd || "0").toFixed(8)}
+                          </td>
+                          <td className="py-3 px-3 text-slate-200 font-bold">
+                            ${p.volume24h.toLocaleString()}
+                          </td>
+                          <td className="py-3 px-3 text-slate-200 font-bold">
+                            ${p.liquidityUsd.toLocaleString()}
+                          </td>
+                          <td className={p.priceChange24h >= 0 ? "py-3 px-3 text-emerald-400 font-black" : "py-3 px-3 text-rose-400 font-black"}>
+                            {p.priceChange24h >= 0 ? `+${p.priceChange24h.toFixed(2)}%` : `${p.priceChange24h.toFixed(2)}%`}
+                          </td>
+                          <td className="py-3 px-3">
+                            <Badge
+                              variant={mevSim.mevThreatLevel === "HIGH" || mevSim.mevThreatLevel === "CRITICAL" ? "destructive" : "success"}
+                              className="text-[9px] font-mono font-bold"
+                            >
+                              [{mevSim.mevThreatLevel}]
+                            </Badge>
+                          </td>
+                        </tr>
                       );
                     })}
                   </tbody>
@@ -360,10 +318,9 @@ export default function DexTerminal() {
         </Card>
       ) : (
         /* Arbitrage Net Edge Scan Tab */
-        <Card className="relative z-10 bg-[#070d1e]/80 backdrop-blur-xl border border-cyan-500/20 shadow-xl rounded-2xl">
+        <Card className="relative z-10 bg-[#070d1e]/80 backdrop-blur-xl border border-cyan-500/20 shadow-xl rounded-2xl font-mono">
           <CardHeader className="pb-2 border-b border-slate-800/80">
             <CardTitle className="text-sm font-black font-mono tracking-wider uppercase flex items-center space-x-2">
-              <span className="text-amber-400">⚡</span>
               <span>REAL CROSS-VENUE NET EDGE ARBITRAGE SCAN ({query})</span>
             </CardTitle>
           </CardHeader>

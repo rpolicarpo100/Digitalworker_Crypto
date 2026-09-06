@@ -16,9 +16,10 @@ export async function GET(request: Request) {
       calibrationHistory: calibration,
       reliabilityStats: reliability,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error);
     return NextResponse.json(
-      { error: "Failed to calculate multi-dimensional scores", details: error.message },
+      { error: "Failed to calculate multi-dimensional scores", details: message },
       { status: 500 }
     );
   }

@@ -10,7 +10,7 @@ export interface MevSlippageResult {
   tradeSizeUsd: number;
   priceImpactPercent: number;
   estimatedSlippagePercent: number;
-  mevRiskScore: number; // 0 - 100
+  mevRiskScore: number;
   mevThreatLevel: "NONE" | "LOW" | "MODERATE" | "HIGH" | "CRITICAL";
   estimatedGasFeeUsd: number;
   grossProfitUsd: number;
@@ -24,14 +24,11 @@ export class MevSlippageEngine {
   calculateRealisticExecution(params: MevSlippageParams): MevSlippageResult {
     const { tradeSizeUsd, liquidityDepthUsd, grossSpreadPercent, blockchain, isDex } = params;
 
-    // 1. Calculate Price Impact (quadratic depth formula)
     const depthRatio = tradeSizeUsd / Math.max(liquidityDepthUsd, 1);
     const priceImpactPercent = Math.min(depthRatio * depthRatio * 100 + depthRatio * 0.8, 25);
 
-    // 2. Base Slippage
-    let estimatedSlippagePercent = Math.max(0.05, priceImpactPercent * 0.6);
+    const estimatedSlippagePercent = Math.max(0.05, priceImpactPercent * 0.6);
 
-    // 3. MEV Risk Calculation
     let mevRiskScore = 0;
     let estimatedGasFeeUsd = 0.5;
 
@@ -47,7 +44,6 @@ export class MevSlippageEngine {
         mevRiskScore = Math.min(70, tradeSizeUsd > 3000 ? 45 : 15);
       }
     } else {
-      // CEX execution
       estimatedGasFeeUsd = 0.1;
       mevRiskScore = 5;
     }
@@ -58,18 +54,15 @@ export class MevSlippageEngine {
     else if (mevRiskScore > 25) mevThreatLevel = "MODERATE";
     else if (mevRiskScore > 10) mevThreatLevel = "LOW";
 
-    // 4. Gross vs Realistic Net Profit
     const grossProfitUsd = (tradeSizeUsd * grossSpreadPercent) / 100;
     const totalDeductionsPercent = priceImpactPercent + estimatedSlippagePercent;
     const deductionsUsd = (tradeSizeUsd * totalDeductionsPercent) / 100 + estimatedGasFeeUsd;
     
-    // MEV extraction penalty if high threat
     const mevPenaltyUsd = mevRiskScore > 50 ? (grossProfitUsd * 0.3) : 0;
     
     const realisticNetProfitUsd = grossProfitUsd - deductionsUsd - mevPenaltyUsd;
     const realisticNetEdgePercent = (realisticNetProfitUsd / tradeSizeUsd) * 100;
 
-    // 5. Execution Decision
     let isExecutable = true;
     let rejectionReason: string | undefined;
 

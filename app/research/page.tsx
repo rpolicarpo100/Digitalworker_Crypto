@@ -2,14 +2,13 @@
 
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
-import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
+import { Card, CardContent, CardHeader } from "../../components/ui/card";
 import { Badge } from "../../components/ui/badge";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { LanguageToggle } from "../../components/ui/LanguageToggle";
 import { ResearchReportExporter } from "../../components/dashboard/ResearchReportExporter";
 import { MultiAssetAnalysisReport, AnalysisMode } from "../../lib/types/multi-asset";
-import { CyberShieldIcon, EnergyBoltIcon, RadarSweepIcon } from "../../components/ui/Icons";
 
 export default function ResearchPage() {
   const [query, setQuery] = useState("NVDA");
@@ -33,15 +32,30 @@ export default function ResearchPage() {
   }, []);
 
   useEffect(() => {
-    fetchReport("NVDA", "PROFESSIONAL");
-  }, [fetchReport]);
+    let isMounted = true;
+    async function load() {
+      try {
+        const res = await fetch("/api/assets/research?symbol=NVDA&mode=PROFESSIONAL");
+        if (res.ok && isMounted) {
+          const json = await res.json();
+          setReport(json);
+        }
+      } catch (e) {
+        console.error("Failed to fetch research report:", e);
+      }
+    }
+    load();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   return (
     <main className="flex-1 max-w-7xl w-full mx-auto p-4 space-y-4 bg-[#030712] min-h-screen text-slate-100 font-sans relative">
       <div className="fixed inset-0 bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:24px_24px] opacity-25 pointer-events-none z-0" />
 
       {/* Header */}
-      <div className="relative z-10 flex flex-wrap items-center justify-between border border-cyan-500/20 bg-[#070d1e]/80 backdrop-blur-xl p-3.5 rounded-2xl shadow-[0_0_30px_rgba(6,182,212,0.08)]">
+      <div className="relative z-10 flex flex-wrap items-center justify-between border border-cyan-500/20 bg-[#070d1e]/80 backdrop-blur-xl p-3.5 rounded-2xl shadow-[0_0_30px_rgba(6,182,212,0.08)] font-mono">
         <div className="flex items-center space-x-3">
           <Link href="/">
             <Button variant="outline" size="sm" className="bg-[#0b142b] border-cyan-500/40 text-cyan-300 hover:bg-cyan-500 hover:text-black font-mono font-bold text-xs transition-all duration-300 rounded-xl">
@@ -49,7 +63,6 @@ export default function ResearchPage() {
             </Button>
           </Link>
           <div className="flex items-center space-x-2">
-            <span className="text-xl">📊</span>
             <h1 className="text-xl font-black font-mono tracking-tight text-white uppercase bg-gradient-to-r from-cyan-300 via-sky-100 to-emerald-300 bg-clip-text text-transparent">
               MULTI-ASSET FINANCIAL INTELLIGENCE RESEARCH ENGINE
             </h1>
@@ -66,7 +79,7 @@ export default function ResearchPage() {
       </div>
 
       {/* Multi-Asset Search & Analysis Mode Switcher */}
-      <div className="relative z-10 space-y-3 bg-[#070d1e]/80 p-3.5 rounded-2xl border border-cyan-500/20 backdrop-blur-xl shadow-lg">
+      <div className="relative z-10 space-y-3 bg-[#070d1e]/80 p-3.5 rounded-2xl border border-cyan-500/20 backdrop-blur-xl shadow-lg font-mono">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center space-x-2 flex-1">
             <Input
@@ -77,7 +90,7 @@ export default function ResearchPage() {
               className="max-w-md bg-[#040814] border-slate-800 text-xs font-mono focus:border-cyan-400 text-slate-100"
             />
             <Button onClick={() => fetchReport(query, mode)} size="sm" className="text-xs bg-cyan-600 hover:bg-cyan-500 font-mono font-bold px-4 shadow-[0_0_12px_rgba(6,182,212,0.4)]">
-              🔍 ANALYZE ASSET
+              ANALYZE ASSET
             </Button>
           </div>
         </div>
@@ -177,9 +190,8 @@ export default function ResearchPage() {
               {report.fundamentals && report.valuation && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="p-3.5 bg-[#040814] rounded-xl border border-slate-800 space-y-2">
-                    <span className="text-cyan-400 font-bold text-xs uppercase block flex items-center space-x-1">
-                      <EnergyBoltIcon className="w-3.5 h-3.5 text-cyan-400" />
-                      <span>Financial Fundamentals:</span>
+                    <span className="text-cyan-400 font-bold text-xs uppercase block">
+                      Financial Fundamentals:
                     </span>
                     <div className="grid grid-cols-2 gap-2 text-[11px] text-slate-300">
                       <p>• Revenue: <strong className="text-slate-100">${(report.fundamentals.revenueUsd / 1e9).toFixed(2)}B</strong></p>
@@ -192,9 +204,8 @@ export default function ResearchPage() {
                   </div>
 
                   <div className="p-3.5 bg-[#040814] rounded-xl border border-slate-800 space-y-2">
-                    <span className="text-amber-400 font-bold text-xs uppercase block flex items-center space-x-1">
-                      <RadarSweepIcon className="w-3.5 h-3.5 text-amber-400" />
-                      <span>Valuation Multiples & Scenarios:</span>
+                    <span className="text-amber-400 font-bold text-xs uppercase block">
+                      Valuation Multiples & Scenarios:
                     </span>
                     <div className="grid grid-cols-2 gap-2 text-[11px] text-slate-300">
                       <p>• P/E Ratio: <strong className="text-slate-100">{report.valuation.peRatio}x</strong></p>
@@ -211,9 +222,8 @@ export default function ResearchPage() {
               {/* Devil's Advocate & Third Eye Section */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="p-3.5 bg-[#040814] rounded-xl border border-rose-800/60 space-y-2 text-rose-200">
-                  <span className="text-rose-400 font-bold text-xs uppercase block flex items-center space-x-1">
-                    <CyberShieldIcon className="w-3.5 h-3.5 text-rose-400" />
-                    <span>DEVIL'S ADVOCATE (BEARISH REVIEW):</span>
+                  <span className="text-rose-400 font-bold text-xs uppercase block">
+                    DEVIL&apos;S ADVOCATE (BEARISH REVIEW):
                   </span>
                   <p className="text-[11px] text-slate-200">{report.devilsAdvocate.bearishReview}</p>
                   <p className="text-[11px] text-rose-300 font-bold">• Strongest Counter-Argument: {report.devilsAdvocate.strongestCounterArgument}</p>

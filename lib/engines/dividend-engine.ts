@@ -14,44 +14,36 @@ export class DividendEngine {
 
     const redFlags: string[] = [];
 
-    // Red Flag 1: Yield Trap check (> 10% dividend yield)
     if (divYield > 10.0) {
       redFlags.push("Abnormally high dividend yield (>10%) - high probability of dividend cut or distressed equity value.");
     }
 
-    // Red Flag 2: Payout Ratio Excessive
     if (payoutRatio > 85.0) {
       redFlags.push("Excessive earnings payout ratio (>85%) - limited safety buffer if earnings decline.");
     }
 
-    // Red Flag 3: Debt Financed Dividends
     if (fundamentals.netDebtUsd > 0 && fundamentals.freeCashFlowUsd < (divYield / 100 * fundamentals.revenueUsd * 0.05)) {
       redFlags.push("Free cash flow is insufficient to cover dividend payments; company relies on debt issuance.");
     }
 
-    // Red Flag 4: High Debt to Equity
     if (fundamentals.netDebtUsd > fundamentals.revenueUsd * 0.8) {
       redFlags.push("Elevated net debt leverage increases interest expense burden over dividend continuity.");
     }
 
-    // Calculate Quality Score
     let qualityScore = 80;
     if (payoutRatio > 80) qualityScore -= 20;
     if (divYield > 9.0) qualityScore -= 25;
     if (fundamentals.revenueGrowthYoyPercent < 0) qualityScore -= 15;
-    if (fundamentals.netDebtUsd < 0) qualityScore += 10; // Net cash position
+    if (fundamentals.netDebtUsd < 0) qualityScore += 10;
     qualityScore = Math.max(10, Math.min(100, qualityScore));
 
-    // Calculate Sustainability Score
-    let sustainabilityScore = Math.max(10, 100 - (payoutRatio * 0.6) - (redFlags.length * 20));
+    const sustainabilityScore = Math.max(10, 100 - (payoutRatio * 0.6) - (redFlags.length * 20));
 
-    // Cut Risk Level
     let cutRiskLevel: DividendIntelligence["cutRiskLevel"] = "LOW";
     if (redFlags.length >= 3 || sustainabilityScore < 30) cutRiskLevel = "CRITICAL";
     else if (redFlags.length === 2 || sustainabilityScore < 50) cutRiskLevel = "HIGH";
     else if (redFlags.length === 1 || sustainabilityScore < 70) cutRiskLevel = "MODERATE";
 
-    // Why is the yield so high explanation
     let whyYieldIsHighExplanation = undefined;
     if (divYield > 6.0) {
       whyYieldIsHighExplanation = `The dividend yield of ${divYield.toFixed(2)}% is elevated primarily due to ${

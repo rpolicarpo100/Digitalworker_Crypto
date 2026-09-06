@@ -7,7 +7,6 @@ import { Badge } from "../../components/ui/badge";
 import { Button } from "../../components/ui/button";
 import { LanguageToggle } from "../../components/ui/LanguageToggle";
 import { ComprehensiveBacktestReport } from "../../lib/engines/regime-backtest-engine";
-import { RadarSweepIcon, EnergyBoltIcon } from "../../components/ui/Icons";
 
 export default function BacktestRegimesPage() {
   const [report, setReport] = useState<ComprehensiveBacktestReport | null>(null);
@@ -37,7 +36,7 @@ export default function BacktestRegimesPage() {
       <div className="fixed inset-0 bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:24px_24px] opacity-25 pointer-events-none z-0" />
 
       {/* Header */}
-      <div className="relative z-10 flex flex-wrap items-center justify-between border border-cyan-500/20 bg-[#070d1e]/80 backdrop-blur-xl p-3.5 rounded-2xl shadow-[0_0_30px_rgba(6,182,212,0.08)]">
+      <div className="relative z-10 flex flex-wrap items-center justify-between border border-cyan-500/20 bg-[#070d1e]/80 backdrop-blur-xl p-3.5 rounded-2xl shadow-[0_0_30px_rgba(6,182,212,0.08)] font-mono">
         <div className="flex items-center space-x-3">
           <Link href="/">
             <Button variant="outline" size="sm" className="bg-[#0b142b] border-cyan-500/40 text-cyan-300 hover:bg-cyan-500 hover:text-black font-mono font-bold text-xs transition-all duration-300 rounded-xl">
@@ -45,7 +44,6 @@ export default function BacktestRegimesPage() {
             </Button>
           </Link>
           <div className="flex items-center space-x-2">
-            <span className="text-xl">⏳</span>
             <h1 className="text-xl font-black font-mono tracking-tight text-white uppercase bg-gradient-to-r from-cyan-300 via-sky-100 to-emerald-300 bg-clip-text text-transparent">
               HISTORICAL BACKTESTING ACROSS MARKET REGIMES
             </h1>

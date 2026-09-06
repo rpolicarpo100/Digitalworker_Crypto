@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { createChart, ColorType, IChartApi, CandlestickSeries, CandlestickData, Time } from "lightweight-charts";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { createChart, ColorType, IChartApi, ISeriesApi, CandlestickSeries, CandlestickData, Time } from "lightweight-charts";
 import { Badge } from "../ui/badge";
 
 interface Candle {
@@ -17,7 +16,7 @@ interface Candle {
 export function PriceChart({ symbol = "BTC" }: { symbol?: string }) {
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
-  const seriesRef = useRef<any>(null);
+  const seriesRef = useRef<ISeriesApi<"Candlestick"> | null>(null);
 
   const [interval, setInterval] = useState("1h");
   const [candles, setCandles] = useState<Candle[]>([]);
@@ -47,15 +46,15 @@ export function PriceChart({ symbol = "BTC" }: { symbol?: string }) {
     // Initialize Lightweight Chart
     const chart = createChart(chartContainerRef.current, {
       layout: {
-        background: { type: ColorType.Solid, color: "#040814" },
-        textColor: "#94a3b8",
+        background: { type: ColorType.Solid, color: "#02040a" },
+        textColor: "#64748b",
       },
       grid: {
-        vertLines: { color: "#1e293b" },
-        horzLines: { color: "#1e293b" },
+        vertLines: { color: "rgba(255, 255, 255, 0.04)" },
+        horzLines: { color: "rgba(255, 255, 255, 0.04)" },
       },
       width: chartContainerRef.current.clientWidth,
-      height: 240,
+      height: 250,
       timeScale: {
         timeVisible: true,
         secondsVisible: false,
@@ -108,37 +107,43 @@ export function PriceChart({ symbol = "BTC" }: { symbol?: string }) {
   const changePercent = firstClose > 0 ? (((lastClose - firstClose) / firstClose) * 100).toFixed(2) : "0.00";
 
   return (
-    <Card className="bg-[#070d1e]/80 backdrop-blur-xl border border-cyan-500/20 shadow-xl rounded-2xl overflow-hidden font-mono">
-      <CardHeader className="flex flex-row items-center justify-between pb-2 border-b border-slate-800">
-        <CardTitle className="text-sm font-black flex items-center space-x-2 text-white">
-          <span>📈 {symbol} TRADINGVIEW LIGHTWEIGHT CANDLESTICK CHART</span>
-          <Badge variant={isUp ? "success" : "destructive"} className="text-[9px] font-bold">
+    <div className="bg-[#050814]/90 border border-slate-800 rounded-xl p-3 font-mono space-y-2">
+      {/* Header Bar */}
+      <div className="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-slate-800/80">
+        <div className="flex items-center space-x-2">
+          <span className="text-xs font-black tracking-wider uppercase text-slate-100">{symbol} CANDLESTICK STRUCTURE</span>
+          <Badge variant={isUp ? "success" : "destructive"} className="text-[9px] font-bold tabular-nums px-1.5 py-0.5">
             {isUp ? "+" : ""}{changePercent}%
           </Badge>
-        </CardTitle>
+        </div>
+
+        {/* Timeframe selector */}
         <div className="flex items-center space-x-1">
           {["15m", "1h", "4h", "1d"].map((tf) => (
             <button
               key={tf}
               onClick={() => setInterval(tf)}
-              className={`px-2 py-0.5 text-[10px] rounded-lg font-bold transition-all ${
-                interval === tf ? "bg-cyan-600 text-black shadow-[0_0_10px_rgba(6,182,212,0.4)]" : "bg-[#040814] text-slate-400 border border-slate-800 hover:text-slate-100"
+              className={`px-2 py-0.5 text-[9px] font-bold rounded transition-colors ${
+                interval === tf
+                  ? "bg-sky-900/80 border border-sky-500/50 text-sky-200"
+                  : "bg-[#02040a] text-slate-400 border border-slate-800 hover:text-slate-200"
               }`}
             >
               {tf}
             </button>
           ))}
         </div>
-      </CardHeader>
+      </div>
 
-      <CardContent className="pt-3">
+      {/* Chart Canvas Area */}
+      <div className="relative">
         {loading && candles.length === 0 ? (
-          <div className="h-60 flex items-center justify-center text-xs text-cyan-400 animate-pulse">
-            [LOADING_TRADINGVIEW_CANDLESTICKS_FOR_{symbol}...]
+          <div className="h-[250px] flex items-center justify-center text-xs text-sky-400/80 animate-pulse font-mono">
+            [SYNCING_CANDLESTICKS_{symbol}...]
           </div>
         ) : null}
-        <div ref={chartContainerRef} className="w-full rounded-xl overflow-hidden border border-slate-800" />
-      </CardContent>
-    </Card>
+        <div ref={chartContainerRef} className="w-full rounded-lg overflow-hidden border border-slate-800/80" />
+      </div>
+    </div>
   );
 }

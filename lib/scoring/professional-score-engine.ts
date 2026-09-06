@@ -1,5 +1,4 @@
 import { CanonicalAssetResolver } from "../identity/canonical-asset";
-import { DataProvenanceMetric } from "../types/provenance";
 
 export interface ScoreFactor {
   factor: string;
@@ -34,15 +33,15 @@ export class ProfessionalScoreEngine {
     const positiveFactors: ScoreFactor[] = [];
     const negativeFactors: ScoreFactor[] = [];
 
-    let qualityScore = 82;
-    let growthScore = 78;
-    let valuationScore = 65;
-    let riskScore = 32;
-    let liquidityScore = 90;
-    let technicalScore = 74;
-    let dividendScore = identity.assetClass === "DIVIDEND" || symbol === "O" ? 85 : 0;
-    let dataQualityScore = 92;
-    let confidenceScore = 88;
+    const qualityScore = 82;
+    const growthScore = 78;
+    const valuationScore = 65;
+    const riskScore = 32;
+    const liquidityScore = 90;
+    const technicalScore = 74;
+    const dividendScore = identity.assetClass === "DIVIDEND" || symbol === "O" ? 85 : 0;
+    const dataQualityScore = 92;
+    const confidenceScore = 88;
 
     if (identity.assetClass === "CRYPTO") {
       positiveFactors.push({

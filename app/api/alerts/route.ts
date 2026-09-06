@@ -1,13 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { alertEngine } from "@/lib/engine/alerts";
-import { providerManager } from "@/lib/providers/manager";
 import { binanceProvider } from "@/lib/providers/binance";
 import { technicalEngine } from "@/lib/engine/technical";
 import { scoringEngine } from "@/lib/engine/scoring";
 import { riskEngine } from "@/lib/engine/risk";
 
 export async function GET() {
-  // Return current active system alerts
   return NextResponse.json({
     count: alertEngine.getActiveAlerts().length,
     alerts: alertEngine.getActiveAlerts(),
@@ -20,7 +18,6 @@ export async function POST(req: NextRequest) {
     const body = await req.json().catch(() => ({}));
     const symbol = (body.symbol || "BTC").toUpperCase().trim();
 
-    const priceData = await providerManager.getPrice(symbol);
     const candles = await binanceProvider.getCandles(symbol, "1h", 100);
 
     const tech = technicalEngine.analyze(candles);

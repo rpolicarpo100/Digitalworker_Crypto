@@ -12,11 +12,11 @@ export function Button({
   children,
   ...props
 }: ButtonProps) {
-  let baseStyles = "inline-flex items-center justify-center font-medium rounded transition-colors focus:outline-none disabled:opacity-50 disabled:pointer-events-none";
-  let variantStyles = "bg-blue-600 hover:bg-blue-500 text-white";
-  if (variant === "outline") variantStyles = "border border-slate-700 bg-transparent hover:bg-slate-800 text-slate-200";
-  if (variant === "ghost") variantStyles = "bg-transparent hover:bg-slate-800 text-slate-300";
-  if (variant === "destructive") variantStyles = "bg-rose-600 hover:bg-rose-500 text-white";
+  const baseStyles = "inline-flex items-center justify-center font-medium rounded transition-colors focus:outline-none disabled:opacity-50 disabled:pointer-events-none";
+  let variantStyles = "bg-sky-700 hover:bg-sky-600 text-white";
+  if (variant === "outline") variantStyles = "border border-slate-800 bg-transparent hover:bg-slate-800/80 text-slate-200";
+  if (variant === "ghost") variantStyles = "bg-transparent hover:bg-slate-800/60 text-slate-300";
+  if (variant === "destructive") variantStyles = "bg-rose-700 hover:bg-rose-600 text-white";
 
   let sizeStyles = "px-3 py-1.5 text-sm";
   if (size === "sm") sizeStyles = "px-2.5 py-1 text-xs";
