@@ -10,8 +10,6 @@ import { AiCopilot } from "../components/dashboard/AiCopilot";
 import { PriceChart } from "../components/dashboard/PriceChart";
 import { OrderBookVisualizer } from "../components/dashboard/OrderBookVisualizer";
 import { RiskRadar } from "../components/dashboard/RiskRadar";
-import { OrderImpactCalculator } from "../components/dashboard/OrderImpactCalculator";
-import { SkepticalAuditWidget } from "../components/dashboard/SkepticalAuditWidget";
 import { LanguageToggle } from "../components/ui/LanguageToggle";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
 import { Badge } from "../components/ui/badge";
@@ -174,6 +172,11 @@ export default function Dashboard() {
           <Link href="/wallet">
             <Button variant="outline" size="sm" className="bg-[#0b142b] border-cyan-500/40 text-cyan-300 hover:bg-cyan-500 hover:text-black font-bold text-xs rounded-xl">
               🐋 Whales
+            </Button>
+          </Link>
+          <Link href="/settings">
+            <Button variant="outline" size="sm" className="bg-[#0b142b] border-cyan-500/40 text-cyan-300 hover:bg-cyan-500 hover:text-black font-bold text-xs rounded-xl">
+              ⚙️ Settings
             </Button>
           </Link>
           <LanguageToggle />
@@ -362,69 +365,14 @@ export default function Dashboard() {
           {/* Real-time SVG Price Chart */}
           <PriceChart symbol={selectedAsset} />
 
-          {/* MEV & Order Impact Realism Simulator */}
-          <OrderImpactCalculator symbol={selectedAsset} />
-
           {/* AI Multi-Agent Copilot */}
           <AiCopilot />
         </div>
 
-        {/* Right Column: Orderbook Depth, Risk Radar & Skeptical Audit (1 col) */}
+        {/* Right Column: Orderbook Depth & Risk Radar */}
         <div className="space-y-4">
           <OrderBookVisualizer symbol={selectedAsset} />
           <RiskRadar symbol={selectedAsset} />
-          <SkepticalAuditWidget />
-
-          <Card className="bg-[#070d1e]/80 backdrop-blur-xl border border-cyan-500/20 shadow-xl rounded-2xl">
-            <CardHeader className="pb-2 border-b border-slate-800/80">
-              <CardTitle className="text-sm font-black font-mono tracking-wider uppercase flex items-center space-x-2">
-                <span className="text-cyan-400">❖</span>
-                <span>{t.aiAgentsStatus}</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2 text-xs pt-3 font-mono">
-              {[
-                { name: "Market Scanner Agent", status: "ACTIVE" },
-                { name: "Technical Analyst Agent", status: "ACTIVE" },
-                { name: "Token Security Analyst", status: "ACTIVE" },
-                { name: "Arbitrage Net Edge Analyst", status: "ACTIVE" },
-                { name: "Risk Manager Agent", status: "ARMED (VETO)" },
-                { name: "Contrarian AI Judge", status: "ACTIVE" },
-              ].map((agent, i) => (
-                <div key={i} className="flex justify-between items-center py-1.5 border-b border-slate-800/50">
-                  <span className="text-slate-300 font-bold">{agent.name}</span>
-                  <Badge variant="success" className="text-[9px] font-mono font-bold bg-emerald-950 border border-emerald-500/40 text-emerald-400">
-                    [{agent.status}]
-                  </Badge>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-
-          <Card className="bg-[#070d1e]/80 backdrop-blur-xl border border-cyan-500/20 shadow-xl rounded-2xl">
-            <CardHeader className="pb-2 border-b border-slate-800/80">
-              <CardTitle className="text-sm font-black font-mono tracking-wider uppercase flex items-center space-x-2">
-                <span className="text-amber-400">⚡</span>
-                <span>{t.engineOverview}</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="pt-3 text-xs font-mono text-slate-300">
-              <div className="p-3 bg-[#040814] rounded-xl border border-slate-800 space-y-2">
-                <div className="flex justify-between items-center">
-                  <span className="text-slate-400">{t.dataFeed}:</span>
-                  <span className="text-emerald-400 font-bold">100% REAL APIS</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-slate-400">{t.securityVeto}:</span>
-                  <span className="text-cyan-400 font-bold">AUTO_RISK_GUARD</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-slate-400">{t.aiReasoning}:</span>
-                  <span className="text-amber-400 font-bold">GROUNDED & CONTRARIAN</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
         </div>
       </div>
     </main>
