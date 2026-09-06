@@ -10,11 +10,48 @@ interface TacticalRecommendation {
   invalidationStopUsd?: number;
 }
 
+interface DeepKpis {
+  godOpportunityScore: number;
+  dataQualityScore: number;
+  confidenceIndex: number;
+  riskRewardRatio: number;
+  expectedValueUsd: number;
+  winProbabilityPercent: number;
+  sharpeRatioEstimate: number;
+  maxDrawdownVaR95Percent: number;
+  liquidityDepthUsd: number;
+  securityRiskScore: number;
+}
+
+interface ExecutionPlan {
+  entryZoneMinUsd: number;
+  entryZoneMaxUsd: number;
+  takeProfitTarget1Usd: number;
+  takeProfitTarget2Usd: number;
+  invalidationStopLossUsd: number;
+  suggestedPositionSizePercent: number;
+  safetyChecklist: string[];
+}
+
+interface MultidimensionalAnalysis {
+  technicalHighlights: string[];
+  onChainFlowHighlights: string[];
+  macroSocioeconomicFactors: string[];
+  valuationHighlights: string[];
+}
+
 interface GroundedAiResponse {
   answer: string;
   userIntent: "BUY_SELL_ADVICE" | "TECHNICAL_ANALYSIS" | "RISK_AUDIT" | "DIVIDEND_FUNDAMENTALS" | "MARKET_GENERAL";
   language: "PT" | "EN" | "FR";
+  personalizedProfile: {
+    riskProfile: "CONSERVATIVE" | "BALANCED" | "AGGRESSIVE";
+    traderPersona: "SWING_TRADER" | "QUANT_ARBITRAGE" | "INSTITUTIONAL_HOLD";
+  };
   tacticalRecommendation: TacticalRecommendation;
+  deepKpis: DeepKpis;
+  executionPlan: ExecutionPlan;
+  multidimensionalAnalysis: MultidimensionalAnalysis;
   dataEvidence: Record<string, unknown>;
   sources: string[];
   confidence: "High" | "Medium" | "Low";
@@ -52,6 +89,8 @@ export function AiCopilot() {
   const [query, setQuery] = useState("Devo comprar BTC hoje?");
   const [response, setResponse] = useState<GroundedAiResponse | null>(null);
   const [loading, setLoading] = useState(false);
+  const [riskProfile, setRiskProfile] = useState<"CONSERVATIVE" | "BALANCED" | "AGGRESSIVE">("BALANCED");
+  const [traderPersona, setTraderPersona] = useState<"SWING_TRADER" | "QUANT_ARBITRAGE" | "INSTITUTIONAL_HOLD">("SWING_TRADER");
 
   async function handleAsk(promptToAsk?: string) {
     const activeQuery = promptToAsk || query;
@@ -92,7 +131,7 @@ export function AiCopilot() {
         <div className="flex items-center space-x-2">
           <span className="w-2 h-2 rounded-full bg-sky-400 animate-pulse" />
           <h2 className="text-xs font-black tracking-wider uppercase text-slate-100">
-            GOD INTELLIGENCE PIPELINE ENGINE
+            GOD DEEP MULTI-AGENT INTELLIGENCE TERMINAL
           </h2>
         </div>
         <div className="flex items-center space-x-1.5">
@@ -102,7 +141,7 @@ export function AiCopilot() {
             </Badge>
           )}
           <Badge variant="outline" className="text-[9px] font-bold border-slate-700 text-sky-400 bg-slate-900/60">
-            CONTRARIAN COGNITION
+            PERSONALIZED COGNITION
           </Badge>
         </div>
       </div>
@@ -126,6 +165,43 @@ export function AiCopilot() {
             )}
           </div>
         ))}
+      </div>
+
+      {/* Personalized Profile & Persona Toggles */}
+      <div className="flex flex-wrap items-center justify-between gap-2 bg-[#02040a] p-2 rounded-lg border border-slate-800/80 text-[9px]">
+        <div className="flex items-center space-x-1.5">
+          <span className="text-slate-500 font-bold uppercase">PERFIL DE RISCO:</span>
+          {(["CONSERVATIVE", "BALANCED", "AGGRESSIVE"] as const).map((p) => (
+            <button
+              key={p}
+              onClick={() => setRiskProfile(p)}
+              className={`px-2 py-0.5 rounded font-bold transition-colors ${
+                riskProfile === p
+                  ? "bg-sky-900/80 border border-sky-500/50 text-sky-200"
+                  : "bg-slate-900 border border-slate-800 text-slate-500 hover:text-slate-300"
+              }`}
+            >
+              [{p}]
+            </button>
+          ))}
+        </div>
+
+        <div className="flex items-center space-x-1.5">
+          <span className="text-slate-500 font-bold uppercase">PERSONA:</span>
+          {(["SWING_TRADER", "QUANT_ARBITRAGE", "INSTITUTIONAL_HOLD"] as const).map((p) => (
+            <button
+              key={p}
+              onClick={() => setTraderPersona(p)}
+              className={`px-2 py-0.5 rounded font-bold transition-colors ${
+                traderPersona === p
+                  ? "bg-emerald-900/80 border border-emerald-500/50 text-emerald-200"
+                  : "bg-slate-900 border border-slate-800 text-slate-500 hover:text-slate-300"
+              }`}
+            >
+              [{p}]
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Quick Prompt Presets */}
@@ -160,28 +236,28 @@ export function AiCopilot() {
         <button
           onClick={() => handleAsk()}
           disabled={loading}
-          className="bg-sky-800 hover:bg-sky-700 text-white font-bold text-xs px-3 py-1.5 rounded-lg transition-colors disabled:opacity-50 shrink-0"
+          className="bg-sky-800 hover:bg-sky-700 text-white font-bold text-xs px-3.5 py-1.5 rounded-lg transition-colors disabled:opacity-50 shrink-0"
         >
-          {loading ? "PROCESSANDO..." : "ANALISAR"}
+          {loading ? "PROCESSANDO..." : "ANALISAR COM IA"}
         </button>
       </div>
 
       {/* Loading Telemetry State */}
       {loading && (
         <div className="py-6 text-center text-xs text-sky-400/80 animate-pulse space-y-1">
-          <div>[PROCESSANDO EM CADEIA MULTI-AGENTE: SCANNER → ANÁLISE TÉCNICA → GESTÃO DE RISCO → ADVOGADO DO DIABO]</div>
-          <div className="text-[9px] text-slate-500">CONSULTANDO BINANCE, DEXSCREENER & FILINGS EM TEMPO REAL...</div>
+          <div>[PROCESSANDO EM CADEIA MULTI-AGENTE: SCANNER → TÉCNICA → RISCO → ADVOGADO DO DIABO]</div>
+          <div className="text-[9px] text-slate-500">A GERAR PLANO DE EXECUÇÃO PERSONALIZADO E KPIS APROFUNDADOS...</div>
         </div>
       )}
 
-      {/* Layered Intelligence Output Nodes */}
+      {/* Deep Intelligence Output Nodes */}
       {response && !loading && (
         <div className="space-y-3 bg-[#02040a] p-3 rounded-lg border border-slate-800/80 text-xs">
-          {/* Tactical Recommendation Banner */}
-          {response.tacticalRecommendation && (
-            <div className="bg-[#050918] p-2.5 rounded-lg border border-slate-800 flex flex-wrap items-center justify-between gap-2">
+          {/* Tactical Recommendation & Execution Plan Header Banner */}
+          <div className="bg-[#050918] p-3 rounded-lg border border-slate-800 space-y-2">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2">
               <div className="flex items-center space-x-2">
-                <span className="text-[9px] text-slate-400 uppercase font-bold">RECOMENDAÇÃO TÁTICA:</span>
+                <span className="text-[9px] text-slate-400 uppercase font-bold">POSICIONAMENTO TÁTICO:</span>
                 <Badge
                   variant={
                     response.tacticalRecommendation.bias === "BULLISH_LONG"
@@ -196,14 +272,68 @@ export function AiCopilot() {
                 </Badge>
               </div>
 
-              {response.tacticalRecommendation.targetPriceUsd && (
-                <div className="flex items-center space-x-3 text-[10px]">
-                  <span>ALVO DE SAÍDA: <strong className="text-emerald-400 tabular-nums">${response.tacticalRecommendation.targetPriceUsd.toLocaleString()}</strong></span>
-                  <span>INVALIDAÇÃO (STOP): <strong className="text-rose-400 tabular-nums">${response.tacticalRecommendation.invalidationStopUsd?.toLocaleString()}</strong></span>
-                </div>
-              )}
+              <div className="flex items-center space-x-3 text-[10px]">
+                <span>TIPO: <strong className="text-sky-300 font-bold">{response.userIntent}</strong></span>
+                <span>CONFIANÇA: <strong className="text-emerald-400 font-bold tabular-nums">{response.confidenceScore}/100</strong></span>
+              </div>
             </div>
-          )}
+
+            {/* Deep KPIs Grid (More KPIs as requested) */}
+            {response.deepKpis && (
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-2 text-center pt-1 font-mono text-[10px]">
+                <div className="bg-[#02040a] p-2 rounded border border-slate-800">
+                  <span className="text-slate-500 block text-[8px] uppercase font-bold">Rácio R/R</span>
+                  <span className="text-emerald-400 font-black text-sm tabular-nums">{response.deepKpis.riskRewardRatio} : 1</span>
+                </div>
+                <div className="bg-[#02040a] p-2 rounded border border-slate-800">
+                  <span className="text-slate-500 block text-[8px] uppercase font-bold">Expectativa ($ EV)</span>
+                  <span className="text-sky-300 font-black text-sm tabular-nums">+${response.deepKpis.expectedValueUsd} / $1k</span>
+                </div>
+                <div className="bg-[#02040a] p-2 rounded border border-slate-800">
+                  <span className="text-slate-500 block text-[8px] uppercase font-bold">Prob. Vitória (WinRate)</span>
+                  <span className="text-emerald-400 font-black text-sm tabular-nums">{response.deepKpis.winProbabilityPercent}%</span>
+                </div>
+                <div className="bg-[#02040a] p-2 rounded border border-slate-800">
+                  <span className="text-slate-500 block text-[8px] uppercase font-bold">Sharpe Estimado</span>
+                  <span className="text-slate-200 font-black text-sm tabular-nums">{response.deepKpis.sharpeRatioEstimate}</span>
+                </div>
+                <div className="bg-[#02040a] p-2 rounded border border-slate-800">
+                  <span className="text-slate-500 block text-[8px] uppercase font-bold">Max Drawdown (95% VaR)</span>
+                  <span className="text-rose-400 font-black text-sm tabular-nums">-{response.deepKpis.maxDrawdownVaR95Percent}%</span>
+                </div>
+              </div>
+            )}
+
+            {/* Actionable Execution Plan Matrix */}
+            {response.executionPlan && (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2 pt-2 border-t border-slate-800 text-[10px]">
+                <div>
+                  <span className="text-slate-500 block text-[8px] uppercase font-bold">Zona de Entrada:</span>
+                  <span className="text-sky-300 font-bold tabular-nums">
+                    ${response.executionPlan.entryZoneMinUsd.toLocaleString()} — ${response.executionPlan.entryZoneMaxUsd.toLocaleString()}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-slate-500 block text-[8px] uppercase font-bold">Alvo TP1 / TP2:</span>
+                  <span className="text-emerald-400 font-bold tabular-nums">
+                    ${response.executionPlan.takeProfitTarget1Usd.toLocaleString()} / ${response.executionPlan.takeProfitTarget2Usd.toLocaleString()}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-slate-500 block text-[8px] uppercase font-bold">Stop Invalidação:</span>
+                  <span className="text-rose-400 font-bold tabular-nums">
+                    ${response.executionPlan.invalidationStopLossUsd.toLocaleString()}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-slate-500 block text-[8px] uppercase font-bold">Dimensionamento Recomendado:</span>
+                  <span className="text-amber-400 font-bold tabular-nums">
+                    {response.executionPlan.suggestedPositionSizePercent}% do Capital
+                  </span>
+                </div>
+              </div>
+            )}
+          </div>
 
           {/* Primary Synthesis Answer */}
           <div>
@@ -214,6 +344,31 @@ export function AiCopilot() {
               {response.answer}
             </p>
           </div>
+
+          {/* Multidimensional Analysis Grid */}
+          {response.multidimensionalAnalysis && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 pt-2 border-t border-slate-800/80 font-mono text-[10px]">
+              <div className="bg-[#050814] p-2.5 rounded border border-slate-800 space-y-1">
+                <span className="text-sky-400 font-bold block text-[9px] uppercase">[ANÁLISE TÉCNICA E ON-CHAIN]:</span>
+                {response.multidimensionalAnalysis.technicalHighlights.map((h, i) => (
+                  <p key={i} className="text-slate-300">• {h}</p>
+                ))}
+                {response.multidimensionalAnalysis.onChainFlowHighlights.map((h, i) => (
+                  <p key={`oc_${i}`} className="text-slate-300">• {h}</p>
+                ))}
+              </div>
+
+              <div className="bg-[#050814] p-2.5 rounded border border-slate-800 space-y-1">
+                <span className="text-emerald-400 font-bold block text-[9px] uppercase">[MACRO E VALORAÇÃO GOD]:</span>
+                {response.multidimensionalAnalysis.macroSocioeconomicFactors.map((h, i) => (
+                  <p key={i} className="text-slate-300">• {h}</p>
+                ))}
+                {response.multidimensionalAnalysis.valuationHighlights.map((h, i) => (
+                  <p key={`val_${i}`} className="text-slate-300">• {h}</p>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Contrarian Counterarguments (Section 21) */}
           <div className="pt-2 border-t border-slate-800/80">

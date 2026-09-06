@@ -3,16 +3,53 @@ import { RiskAnalysis } from "../engine/risk";
 import { TokenSecurityAudit } from "../engine/token-security";
 import { ArbitrageOpportunity } from "../engine/arbitrage";
 
+export interface DeepKpis {
+  godOpportunityScore: number;
+  dataQualityScore: number;
+  confidenceIndex: number;
+  riskRewardRatio: number; // e.g. 3.4
+  expectedValueUsd: number; // e.g. +$142 per $1k
+  winProbabilityPercent: number; // e.g. 68%
+  sharpeRatioEstimate: number; // e.g. 2.15
+  maxDrawdownVaR95Percent: number; // e.g. 4.2%
+  liquidityDepthUsd: number;
+  securityRiskScore: number;
+}
+
+export interface ExecutionPlan {
+  entryZoneMinUsd: number;
+  entryZoneMaxUsd: number;
+  takeProfitTarget1Usd: number;
+  takeProfitTarget2Usd: number;
+  invalidationStopLossUsd: number;
+  suggestedPositionSizePercent: number; // % of portfolio risk
+  safetyChecklist: string[];
+}
+
+export interface MultidimensionalAnalysis {
+  technicalHighlights: string[];
+  onChainFlowHighlights: string[];
+  macroSocioeconomicFactors: string[];
+  valuationHighlights: string[];
+}
+
 export interface GroundedAiResponse {
   answer: string;
   userIntent: "BUY_SELL_ADVICE" | "TECHNICAL_ANALYSIS" | "RISK_AUDIT" | "DIVIDEND_FUNDAMENTALS" | "MARKET_GENERAL";
   language: "PT" | "EN" | "FR";
+  personalizedProfile: {
+    riskProfile: "CONSERVATIVE" | "BALANCED" | "AGGRESSIVE";
+    traderPersona: "SWING_TRADER" | "QUANT_ARBITRAGE" | "INSTITUTIONAL_HOLD";
+  };
   tacticalRecommendation: {
     bias: "BULLISH_LONG" | "BEARISH_SHORT" | "NEUTRAL_WAIT" | "CAUTION_RISK";
     suggestedAction: string;
     targetPriceUsd?: number;
     invalidationStopUsd?: number;
   };
+  deepKpis: DeepKpis;
+  executionPlan: ExecutionPlan;
+  multidimensionalAnalysis: MultidimensionalAnalysis;
   dataEvidence: Record<string, unknown>;
   sources: string[];
   confidence: "High" | "Medium" | "Low";
