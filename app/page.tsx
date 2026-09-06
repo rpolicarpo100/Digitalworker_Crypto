@@ -116,10 +116,9 @@ export default function Dashboard() {
 
   return (
     <main className="flex-1 max-w-7xl w-full mx-auto p-4 space-y-4 bg-[#030712] min-h-screen text-slate-100 font-sans selection:bg-cyan-500 selection:text-black relative">
-      {/* Background Cyber-Grid subtle background pattern */}
       <div className="fixed inset-0 bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:24px_24px] opacity-25 pointer-events-none z-0" />
 
-      {/* Cyber HUD Header */}
+      {/* Header Banner */}
       <header className="relative z-10 flex flex-wrap items-center justify-between border border-cyan-500/20 bg-[#070d1e]/80 backdrop-blur-xl p-3.5 rounded-2xl shadow-[0_0_30px_rgba(6,182,212,0.08)]">
         <div className="flex items-center space-x-3">
           <div className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500/20 via-blue-600/20 to-emerald-500/20 border border-cyan-400/40 shadow-[0_0_15px_rgba(6,182,212,0.3)] font-mono font-black text-cyan-300 text-lg">
@@ -130,30 +129,45 @@ export default function Dashboard() {
           <div>
             <div className="flex items-center space-x-2">
               <h1 className="text-xl font-black tracking-tight text-white font-mono uppercase bg-gradient-to-r from-cyan-300 via-sky-100 to-emerald-300 bg-clip-text text-transparent">
-                DIGITAL WORKER // CRYPTO HUD
+                DIGITAL WORKER // MULTI-ASSET FINANCIAL INTELLIGENCE
               </h1>
               <span className="text-[9px] font-mono px-2 py-0.5 rounded bg-cyan-950/80 border border-cyan-500/40 text-cyan-300 font-bold uppercase tracking-widest">
-                [SYS_CORE: v0.5]
+                [SYS_CORE: v1.0]
               </span>
             </div>
             <p className="text-[10px] text-slate-400 font-mono flex items-center space-x-2 mt-0.5">
-              <span className="text-emerald-400 font-bold">[100% REAL DATA FEED]</span>
+              <span className="text-emerald-400 font-bold">[MULTI-ASSET ENGINE]</span>
               <span>•</span>
-              <span className="text-slate-500">NODE: LISBON_PT</span>
-              <span>•</span>
-              <span className="text-cyan-400 font-bold">MEV_SHIELD: ARMED</span>
+              <span className="text-slate-500">ANALYSIS ONLY • NO ORDER EXECUTION</span>
             </p>
           </div>
         </div>
 
-        <div className="flex items-center space-x-3 mt-2 sm:mt-0">
+        {/* Navigation Bar */}
+        <div className="flex flex-wrap items-center gap-2 mt-2 sm:mt-0 font-mono">
+          <Link href="/research">
+            <Button size="sm" className="bg-cyan-600 text-black hover:bg-cyan-400 font-bold text-xs rounded-xl shadow-[0_0_12px_rgba(6,182,212,0.4)]">
+              📊 Research
+            </Button>
+          </Link>
           <Link href="/dex">
-            <Button
-              variant="outline"
-              size="sm"
-              className="bg-[#0b142b] border-cyan-500/40 text-cyan-300 hover:bg-cyan-500 hover:text-black font-mono font-bold text-xs transition-all duration-300 shadow-[0_0_15px_rgba(6,182,212,0.15)] rounded-xl"
-            >
-              ❖ {t.dexTerminal}
+            <Button variant="outline" size="sm" className="bg-[#0b142b] border-cyan-500/40 text-cyan-300 hover:bg-cyan-500 hover:text-black font-bold text-xs rounded-xl">
+              ❖ DEX
+            </Button>
+          </Link>
+          <Link href="/dividends">
+            <Button variant="outline" size="sm" className="bg-[#0b142b] border-cyan-500/40 text-cyan-300 hover:bg-cyan-500 hover:text-black font-bold text-xs rounded-xl">
+              💰 Dividends
+            </Button>
+          </Link>
+          <Link href="/sectors">
+            <Button variant="outline" size="sm" className="bg-[#0b142b] border-cyan-500/40 text-cyan-300 hover:bg-cyan-500 hover:text-black font-bold text-xs rounded-xl">
+              📈 Sectors
+            </Button>
+          </Link>
+          <Link href="/wallet">
+            <Button variant="outline" size="sm" className="bg-[#0b142b] border-cyan-500/40 text-cyan-300 hover:bg-cyan-500 hover:text-black font-bold text-xs rounded-xl">
+              🐋 Whales
             </Button>
           </Link>
           <LanguageToggle />
@@ -169,7 +183,7 @@ export default function Dashboard() {
         <PriceTicker />
       </div>
 
-      {/* Toast Cyber Alert Notification */}
+      {/* Toast Notification */}
       {paperMessage && (
         <div className="relative z-10 p-3 bg-cyan-950/90 border border-cyan-400/60 rounded-xl text-cyan-200 text-xs font-mono font-bold flex items-center justify-between shadow-[0_0_20px_rgba(6,182,212,0.3)] animate-in fade-in slide-in-from-top-2">
           <span className="flex items-center space-x-2">
@@ -233,13 +247,11 @@ export default function Dashboard() {
                             : "bg-[#091022]/90 hover:bg-[#0c162e] border-slate-800/80 hover:border-cyan-500/40 shadow-lg"
                         }`}
                       >
-                        {/* Futuristic Bracket Accents */}
                         <span className="absolute top-1 left-1 text-[8px] font-mono text-cyan-500/40">┌</span>
                         <span className="absolute top-1 right-1 text-[8px] font-mono text-cyan-500/40">┐</span>
                         <span className="absolute bottom-1 left-1 text-[8px] font-mono text-cyan-500/40">└</span>
                         <span className="absolute bottom-1 right-1 text-[8px] font-mono text-cyan-500/40">┘</span>
 
-                        {/* Top Tile Header */}
                         <div className="flex items-center justify-between mb-3">
                           <div className="flex items-center space-x-2.5">
                             <div className="w-8 h-8 rounded-lg bg-cyan-950/80 border border-cyan-500/40 flex items-center justify-center font-mono font-black text-xs text-cyan-300 shadow-[0_0_10px_rgba(6,182,212,0.2)]">
@@ -261,7 +273,6 @@ export default function Dashboard() {
                           </div>
                         </div>
 
-                        {/* High-Density Clean Telemetry Metrics Grid */}
                         <div className="grid grid-cols-3 gap-2 text-[11px] bg-[#040814] p-2.5 rounded-lg mb-3 border border-slate-800/80 font-mono">
                           <div>
                             <span className="text-slate-500 block text-[9px] font-bold uppercase">{t.price}:</span>
@@ -283,7 +294,6 @@ export default function Dashboard() {
                           </div>
                         </div>
 
-                        {/* Bottom Row Actions & Indicator */}
                         <div className="flex items-center justify-between text-[10px] font-mono text-slate-400">
                           <span className="text-slate-500">FEED: {opp.source}</span>
                           <span className="text-cyan-400 font-bold group-hover:underline flex items-center space-x-1">
@@ -291,7 +301,6 @@ export default function Dashboard() {
                           </span>
                         </div>
 
-                        {/* Expanded Cyber Drawer Details & Instant Paper Execution */}
                         {isExpanded && (
                           <div
                             className="mt-3 pt-3 border-t border-slate-800 text-[11px] font-sans space-y-2.5 bg-[#030610] p-3 rounded-xl text-slate-300 animate-in fade-in duration-200 border border-slate-800/80"
@@ -310,7 +319,6 @@ export default function Dashboard() {
                               <p className="text-slate-200 leading-snug">{opp.conditions.exitConditions[0]}</p>
                             </div>
 
-                            {/* Futuristic Cyber Buttons */}
                             <div className="pt-2 border-t border-slate-800 flex items-center justify-between font-mono">
                               <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">[PAPER_TRIGGER]:</span>
                               <div className="flex items-center space-x-2">
@@ -358,7 +366,6 @@ export default function Dashboard() {
           <RiskRadar symbol={selectedAsset} />
           <SkepticalAuditWidget />
 
-          {/* Neural Multi-Agent Status */}
           <Card className="bg-[#070d1e]/80 backdrop-blur-xl border border-cyan-500/20 shadow-xl rounded-2xl">
             <CardHeader className="pb-2 border-b border-slate-800/80">
               <CardTitle className="text-sm font-black font-mono tracking-wider uppercase flex items-center space-x-2">
@@ -385,7 +392,6 @@ export default function Dashboard() {
             </CardContent>
           </Card>
 
-          {/* Futuristic Engine Overview */}
           <Card className="bg-[#070d1e]/80 backdrop-blur-xl border border-cyan-500/20 shadow-xl rounded-2xl">
             <CardHeader className="pb-2 border-b border-slate-800/80">
               <CardTitle className="text-sm font-black font-mono tracking-wider uppercase flex items-center space-x-2">
