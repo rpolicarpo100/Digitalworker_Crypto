@@ -7,6 +7,7 @@ import { Badge } from "../../components/ui/badge";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { LanguageToggle } from "../../components/ui/LanguageToggle";
+import { ResearchReportExporter } from "../../components/dashboard/ResearchReportExporter";
 import { MultiAssetAnalysisReport, AnalysisMode } from "../../lib/types/multi-asset";
 import { CyberShieldIcon, EnergyBoltIcon, RadarSweepIcon } from "../../components/ui/Icons";
 
@@ -59,6 +60,7 @@ export default function ResearchPage() {
         </div>
 
         <div className="flex items-center space-x-3">
+          {report && <ResearchReportExporter report={report} />}
           <LanguageToggle />
         </div>
       </div>
