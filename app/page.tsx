@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { GlobalMarket } from "../components/dashboard/GlobalMarket";
 import { PriceTicker } from "../components/dashboard/PriceTicker";
+import { GlobalIntelligenceKpis } from "../components/dashboard/GlobalIntelligenceKpis";
 import { SystemHealth } from "../components/dashboard/SystemHealth";
 import { AiCopilot } from "../components/dashboard/AiCopilot";
 import { PriceChart } from "../components/dashboard/PriceChart";
@@ -186,6 +187,9 @@ export default function Dashboard() {
       </div>
       <div className="relative z-10">
         <PriceTicker />
+      </div>
+      <div className="relative z-10">
+        <GlobalIntelligenceKpis />
       </div>
 
       {/* Toast Notification */}
