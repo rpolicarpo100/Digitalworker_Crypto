@@ -197,7 +197,7 @@ export default function Dashboard() {
 
       {/* Toast Notification */}
       {paperMessage && (
-        <div className="relative z-10 p-2.5 bg-cyan-950/90 border border-cyan-400/60 rounded-xl text-cyan-200 text-xs font-mono font-bold flex items-center justify-between shadow-[0_0_20px_rgba(6,182,212,0.3)] animate-in fade-in slide-in-from-top-2">
+        <div className="relative z-10 p-2 bg-cyan-950/90 border border-cyan-400/60 rounded-xl text-cyan-200 text-xs font-mono font-bold flex items-center justify-between shadow-[0_0_20px_rgba(6,182,212,0.3)] animate-in fade-in slide-in-from-top-2">
           <span className="flex items-center space-x-2">
             <span className="animate-pulse text-cyan-400">⚡</span>
             <span>{paperMessage}</span>
@@ -214,7 +214,7 @@ export default function Dashboard() {
           <Card className="bg-[#070d1e]/80 backdrop-blur-xl border border-cyan-500/20 shadow-[0_0_30px_rgba(0,0,0,0.5)] rounded-xl overflow-hidden relative">
             <div className="absolute top-0 right-0 w-80 h-80 bg-cyan-500/5 rounded-full blur-3xl pointer-events-none" />
 
-            <CardHeader className="flex flex-row items-center justify-between py-2 px-3.5 border-b border-slate-800/80">
+            <CardHeader className="flex flex-row items-center justify-between py-1.5 px-3 border-b border-slate-800/80">
               <CardTitle className="text-xs font-black font-mono tracking-wider uppercase flex items-center space-x-2">
                 <span className="text-cyan-400 font-bold">◈</span>
                 <span className="text-slate-100">{t.liveOpportunities}</span>
@@ -227,24 +227,24 @@ export default function Dashboard() {
                 size="sm"
                 onClick={fetchOpps}
                 disabled={isRefreshing}
-                className="text-[10px] py-0.5 px-2 bg-[#0a1124] border-cyan-500/30 text-cyan-300 hover:bg-cyan-500/20 font-mono font-bold transition-all duration-300 rounded-lg"
+                className="text-[9px] py-0.5 px-2 bg-[#0a1124] border-cyan-500/30 text-cyan-300 hover:bg-cyan-500/20 font-mono font-bold transition-all duration-300 rounded-lg"
               >
                 {isRefreshing ? t.updatingBtn : t.updateBtn}
               </Button>
             </CardHeader>
 
-            <CardContent className="p-3">
+            <CardContent className="p-2.5">
               {loading ? (
-                <div className="py-8 text-center text-xs font-mono text-cyan-400/80 animate-pulse flex flex-col items-center justify-center space-y-2">
-                  <div className="w-7 h-7 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin" />
+                <div className="py-6 text-center text-xs font-mono text-cyan-400/80 animate-pulse flex flex-col items-center justify-center space-y-2">
+                  <div className="w-6 h-6 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin" />
                   <span>[SCANNING_QUANT_FEEDS & INDICATORS...]</span>
                 </div>
               ) : opportunities.length === 0 ? (
-                <div className="py-8 text-center text-xs font-mono text-slate-400">
+                <div className="py-6 text-center text-xs font-mono text-slate-400">
                   {t.noOpportunities}
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                   {opportunities.map((opp) => {
                     const isExpanded = expandedOppId === opp.opportunityId;
                     const isSelected = selectedAsset === opp.asset;
@@ -253,68 +253,65 @@ export default function Dashboard() {
                       <div
                         key={opp.opportunityId}
                         onClick={() => toggleExpand(opp.opportunityId, opp.asset)}
-                        className={`p-2.5 rounded-xl border transition-all duration-300 cursor-pointer relative group ${
+                        className={`p-2 rounded-xl border transition-all duration-300 cursor-pointer relative group ${
                           isSelected
-                            ? "bg-gradient-to-br from-[#0c162d] via-[#0d1a36] to-[#081024] border-cyan-400/80 shadow-[0_0_20px_rgba(6,182,212,0.2)]"
+                            ? "bg-gradient-to-br from-[#0c162d] via-[#0d1a36] to-[#081024] border-cyan-400/80 shadow-[0_0_15px_rgba(6,182,212,0.25)]"
                             : "bg-[#091022]/90 hover:bg-[#0c162e] border-slate-800/80 hover:border-cyan-500/40 shadow-sm"
                         }`}
                       >
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="flex items-center space-x-2">
-                            <div className="w-7 h-7 rounded-lg bg-cyan-950/80 border border-cyan-500/40 flex items-center justify-center font-mono font-black text-xs text-cyan-300 shadow-[0_0_8px_rgba(6,182,212,0.2)]">
+                        <div className="flex items-center justify-between mb-1">
+                          <div className="flex items-center space-x-1.5">
+                            <div className="w-6 h-6 rounded-md bg-cyan-950/80 border border-cyan-500/40 flex items-center justify-center font-mono font-black text-[10px] text-cyan-300">
                               {opp.asset.slice(0, 3)}
                             </div>
                             <div>
-                              <span className="font-mono font-black text-sm text-white tracking-wide">{opp.asset}</span>
-                              <span className="ml-1.5 text-[8px] font-mono px-1 py-0.5 rounded bg-blue-950/80 border border-blue-500/40 text-blue-300 uppercase font-bold">
+                              <span className="font-mono font-black text-xs text-white tracking-wide">{opp.asset}</span>
+                              <span className="ml-1 text-[8px] font-mono px-1 py-0.2 rounded bg-blue-950/80 border border-blue-500/40 text-blue-300 uppercase font-bold">
                                 {opp.opportunityType}
                               </span>
                             </div>
                           </div>
 
-                          {/* PROMINENT COMPACT SCORE KPI */}
-                          <div className="text-right">
-                            <div className="flex items-baseline justify-end space-x-0.5">
-                              <span className="font-mono font-black text-2xl text-emerald-400 drop-shadow-[0_0_10px_rgba(16,185,129,0.5)]">
-                                {opp.score}
-                              </span>
-                              <span className="text-[9px] text-slate-500 font-bold">/100</span>
-                            </div>
-                            <span className="text-[8px] font-mono text-slate-400 uppercase block font-bold tracking-wider">{t.score}</span>
+                          {/* HERO GIANT KPI SCORE */}
+                          <div className="text-right flex items-baseline space-x-0.5">
+                            <span className="font-mono font-black text-3xl text-emerald-400 drop-shadow-[0_0_12px_rgba(16,185,129,0.7)]">
+                              {opp.score}
+                            </span>
+                            <span className="text-[9px] text-slate-500 font-bold">/100</span>
                           </div>
                         </div>
 
-                        <div className="grid grid-cols-3 gap-1.5 text-[10px] bg-[#040814] p-2 rounded-lg mb-2 border border-slate-800/80 font-mono">
+                        <div className="grid grid-cols-3 gap-1 text-[9px] bg-[#040814] p-1.5 rounded-lg mb-1 border border-slate-800/80 font-mono">
                           <div>
                             <span className="text-slate-500 block text-[8px] font-bold uppercase">{t.price}:</span>
-                            <span className="text-slate-100 font-black text-[11px]">
+                            <span className="text-slate-100 font-black text-[10px]">
                               ${opp.currentPrice > 10 ? opp.currentPrice.toLocaleString() : opp.currentPrice.toFixed(4)}
                             </span>
                           </div>
                           <div>
                             <span className="text-slate-500 block text-[8px] font-bold uppercase">{t.trendRsi}:</span>
-                            <span className="text-slate-200 font-bold text-[10px]">
+                            <span className="text-slate-200 font-bold text-[9px]">
                               {opp.technicalSummary.trend} ({opp.technicalSummary.rsi})
                             </span>
                           </div>
                           <div>
                             <span className="text-slate-500 block text-[8px] font-bold uppercase">{t.riskLevel}:</span>
-                            <span className={opp.riskLevel === "LOW" ? "text-emerald-400 font-black text-[10px]" : "text-amber-400 font-black text-[10px]"}>
+                            <span className={opp.riskLevel === "LOW" ? "text-emerald-400 font-black text-[9px]" : "text-amber-400 font-black text-[9px]"}>
                               {opp.riskLevel}
                             </span>
                           </div>
                         </div>
 
-                        <div className="flex items-center justify-between text-[9px] font-mono text-slate-400">
+                        <div className="flex items-center justify-between text-[8px] font-mono text-slate-400">
                           <span className="text-slate-500">FEED: {opp.source}</span>
-                          <span className="text-cyan-400 font-bold group-hover:underline flex items-center space-x-1">
-                            <span>{isExpanded ? t.hideDetail : t.showDetail}</span>
+                          <span className="text-cyan-400 font-bold group-hover:underline">
+                            {isExpanded ? t.hideDetail : t.showDetail}
                           </span>
                         </div>
 
                         {isExpanded && (
                           <div
-                            className="mt-2 pt-2 border-t border-slate-800 text-[10px] font-sans space-y-2 bg-[#030610] p-2.5 rounded-xl text-slate-300 animate-in fade-in duration-200 border border-slate-800/80"
+                            className="mt-2 pt-2 border-t border-slate-800 text-[10px] font-sans space-y-2 bg-[#030610] p-2 rounded-xl text-slate-300 animate-in fade-in duration-200 border border-slate-800/80"
                             onClick={(e) => e.stopPropagation()}
                           >
                             <div>
@@ -337,7 +334,7 @@ export default function Dashboard() {
                                   variant="default"
                                   size="sm"
                                   onClick={() => handleQuickPaperTrade(opp.asset, opp.currentPrice, "BUY")}
-                                  className="bg-emerald-600 hover:bg-emerald-500 text-white font-mono font-black text-[9px] h-5 px-2.5 shadow-[0_0_10px_rgba(16,185,129,0.4)] rounded-md"
+                                  className="bg-emerald-600 hover:bg-emerald-500 text-white font-mono font-black text-[9px] h-5 px-2 shadow-[0_0_10px_rgba(16,185,129,0.4)] rounded-md"
                                 >
                                   [ENTER_LONG]
                                 </Button>
@@ -345,7 +342,7 @@ export default function Dashboard() {
                                   variant="destructive"
                                   size="sm"
                                   onClick={() => handleQuickPaperTrade(opp.asset, opp.currentPrice, "SELL")}
-                                  className="bg-rose-600 hover:bg-rose-500 text-white font-mono font-black text-[9px] h-5 px-2.5 shadow-[0_0_10px_rgba(244,63,94,0.4)] rounded-md"
+                                  className="bg-rose-600 hover:bg-rose-500 text-white font-mono font-black text-[9px] h-5 px-2 shadow-[0_0_10px_rgba(244,63,94,0.4)] rounded-md"
                                 >
                                   [ENTER_SHORT]
                                 </Button>
@@ -368,7 +365,7 @@ export default function Dashboard() {
           <AiCopilot />
         </div>
 
-        {/* Right Column: Orderbook Depth & Compact Risk Radar */}
+        {/* Right Column: Orderbook Depth & Compact Horizontal Risk Radar */}
         <div className="space-y-3">
           <OrderBookVisualizer symbol={selectedAsset} />
           <RiskRadar symbol={selectedAsset} />
