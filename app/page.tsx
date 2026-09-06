@@ -9,6 +9,8 @@ import { AiCopilot } from "@/components/dashboard/AiCopilot";
 import { PriceChart } from "@/components/dashboard/PriceChart";
 import { OrderBookVisualizer } from "@/components/dashboard/OrderBookVisualizer";
 import { RiskRadar } from "@/components/dashboard/RiskRadar";
+import { OrderImpactCalculator } from "@/components/dashboard/OrderImpactCalculator";
+import { SkepticalAuditWidget } from "@/components/dashboard/SkepticalAuditWidget";
 import { LanguageToggle } from "@/components/ui/LanguageToggle";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -111,7 +113,7 @@ export default function Dashboard() {
 
       {/* Main Terminal Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {/* Left: Opportunities & AI Copilot (2 cols) */}
+        {/* Left: Opportunities, Chart & AI Copilot (2 cols) */}
         <div className="lg:col-span-2 space-y-4">
           {/* Opportunities Terminal */}
           <Card className="bg-[#0b101e] border-slate-800">
@@ -230,6 +232,9 @@ export default function Dashboard() {
           {/* Real-time Price Chart */}
           <PriceChart symbol={selectedAsset} />
 
+          {/* Order Impact & MEV Realism Simulator */}
+          <OrderImpactCalculator symbol={selectedAsset} />
+
           {/* AI Copilot */}
           <AiCopilot />
         </div>
@@ -238,6 +243,7 @@ export default function Dashboard() {
         <div className="space-y-4">
           <OrderBookVisualizer symbol={selectedAsset} />
           <RiskRadar symbol={selectedAsset} />
+          <SkepticalAuditWidget />
 
           <Card className="bg-[#0b101e] border-slate-800">
             <CardHeader>
