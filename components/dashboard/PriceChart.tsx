@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { createChart, ColorType, IChartApi, CandlestickSeries, CandlestickData, Time } from "lightweight-charts";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Badge } from "../ui/badge";
 
@@ -14,6 +15,10 @@ interface Candle {
 }
 
 export function PriceChart({ symbol = "BTC" }: { symbol?: string }) {
+  const chartContainerRef = useRef<HTMLDivElement>(null);
+  const chartRef = useRef<IChartApi | null>(null);
+  const seriesRef = useRef<any>(null);
+
   const [interval, setInterval] = useState("1h");
   const [candles, setCandles] = useState<Candle[]>([]);
   const [loading, setLoading] = useState(true);
@@ -22,7 +27,7 @@ export function PriceChart({ symbol = "BTC" }: { symbol?: string }) {
     async function loadCandles() {
       setLoading(true);
       try {
-        const res = await fetch(`/api/market/candles?symbol=${symbol}&interval=${interval}&limit=60`);
+        const res = await fetch(`/api/market/candles?symbol=${symbol}&interval=${interval}&limit=100`);
         if (res.ok) {
           const json = await res.json();
           setCandles(json.candles || []);
@@ -36,44 +41,79 @@ export function PriceChart({ symbol = "BTC" }: { symbol?: string }) {
     loadCandles();
   }, [symbol, interval]);
 
-  if (loading || candles.length < 5) {
-    return (
-      <Card className="bg-[#0b101e] border-slate-800 animate-pulse">
-        <CardContent className="h-64 flex items-center justify-center text-xs text-slate-500">
-          Loading live chart candles for {symbol}...
-        </CardContent>
-      </Card>
-    );
-  }
+  useEffect(() => {
+    if (!chartContainerRef.current) return;
 
-  const closes = candles.map((c) => c.close);
-  const minPrice = Math.min(...closes);
-  const maxPrice = Math.max(...closes);
-  const priceRange = maxPrice - minPrice || 1;
+    // Initialize Lightweight Chart
+    const chart = createChart(chartContainerRef.current, {
+      layout: {
+        background: { type: ColorType.Solid, color: "#040814" },
+        textColor: "#94a3b8",
+      },
+      grid: {
+        vertLines: { color: "#1e293b" },
+        horzLines: { color: "#1e293b" },
+      },
+      width: chartContainerRef.current.clientWidth,
+      height: 240,
+      timeScale: {
+        timeVisible: true,
+        secondsVisible: false,
+      },
+    });
 
-  const width = 600;
-  const height = 200;
-  const padding = 20;
+    const candlestickSeries = chart.addSeries(CandlestickSeries, {
+      upColor: "#10b981",
+      downColor: "#f43f5e",
+      borderVisible: false,
+      wickUpColor: "#10b981",
+      wickDownColor: "#f43f5e",
+    });
 
-  const points = closes.map((price, idx) => {
-    const x = padding + (idx / (closes.length - 1)) * (width - 2 * padding);
-    const y = height - padding - ((price - minPrice) / priceRange) * (height - 2 * padding);
-    return `${x},${y}`;
-  });
+    chartRef.current = chart;
+    seriesRef.current = candlestickSeries;
 
-  const pathData = `M ${points.join(" L ")}`;
-  const lastClose = closes[closes.length - 1];
-  const firstClose = closes[0];
+    const handleResize = () => {
+      if (chartContainerRef.current && chartRef.current) {
+        chartRef.current.applyOptions({ width: chartContainerRef.current.clientWidth });
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      chart.remove();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (seriesRef.current && candles.length > 0) {
+      const formattedData: CandlestickData<Time>[] = candles.map((c) => ({
+        time: Math.floor(c.openTime / 1000) as Time,
+        open: c.open,
+        high: c.high,
+        low: c.low,
+        close: c.close,
+      }));
+
+      seriesRef.current.setData(formattedData);
+      chartRef.current?.timeScale().fitContent();
+    }
+  }, [candles]);
+
+  const lastClose = candles.length > 0 ? candles[candles.length - 1].close : 0;
+  const firstClose = candles.length > 0 ? candles[0].close : 0;
   const isUp = lastClose >= firstClose;
-  const strokeColor = isUp ? "#10b981" : "#f43f5e";
+  const changePercent = firstClose > 0 ? (((lastClose - firstClose) / firstClose) * 100).toFixed(2) : "0.00";
 
   return (
-    <Card className="bg-[#0b101e] border-slate-800">
-      <CardHeader className="flex flex-row items-center justify-between pb-2">
-        <CardTitle className="text-sm font-semibold flex items-center space-x-2">
-          <span>📈 {symbol} Live Price Chart</span>
-          <Badge variant={isUp ? "success" : "destructive"} className="text-[10px]">
-            {isUp ? "+" : ""}{(((lastClose - firstClose) / firstClose) * 100).toFixed(2)}%
+    <Card className="bg-[#070d1e]/80 backdrop-blur-xl border border-cyan-500/20 shadow-xl rounded-2xl overflow-hidden font-mono">
+      <CardHeader className="flex flex-row items-center justify-between pb-2 border-b border-slate-800">
+        <CardTitle className="text-sm font-black flex items-center space-x-2 text-white">
+          <span>📈 {symbol} TRADINGVIEW LIGHTWEIGHT CANDLESTICK CHART</span>
+          <Badge variant={isUp ? "success" : "destructive"} className="text-[9px] font-bold">
+            {isUp ? "+" : ""}{changePercent}%
           </Badge>
         </CardTitle>
         <div className="flex items-center space-x-1">
@@ -81,8 +121,8 @@ export function PriceChart({ symbol = "BTC" }: { symbol?: string }) {
             <button
               key={tf}
               onClick={() => setInterval(tf)}
-              className={`px-2 py-0.5 text-[10px] rounded font-mono transition-colors ${
-                interval === tf ? "bg-blue-600 text-white" : "bg-[#080d19] text-slate-400 hover:text-slate-200"
+              className={`px-2 py-0.5 text-[10px] rounded-lg font-bold transition-all ${
+                interval === tf ? "bg-cyan-600 text-black shadow-[0_0_10px_rgba(6,182,212,0.4)]" : "bg-[#040814] text-slate-400 border border-slate-800 hover:text-slate-100"
               }`}
             >
               {tf}
@@ -91,36 +131,13 @@ export function PriceChart({ symbol = "BTC" }: { symbol?: string }) {
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-2">
-        <div className="relative w-full overflow-hidden bg-[#060a14] rounded p-2 border border-slate-800/80">
-          <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-48">
-            <defs>
-              <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor={strokeColor} stopOpacity="0.25" />
-                <stop offset="100%" stopColor={strokeColor} stopOpacity="0.0" />
-              </linearGradient>
-            </defs>
-            {/* Background grid lines */}
-            <line x1="0" y1={height / 2} x2={width} y2={height / 2} stroke="#1e293b" strokeDasharray="4 4" strokeWidth="1" />
-            <line x1="0" y1={height / 4} x2={width} y2={height / 4} stroke="#1e293b" strokeDasharray="4 4" strokeWidth="1" />
-            <line x1="0" y1={(3 * height) / 4} x2={width} y2={(3 * height) / 4} stroke="#1e293b" strokeDasharray="4 4" strokeWidth="1" />
-
-            {/* Area fill */}
-            <path
-              d={`${pathData} L ${width - padding},${height - padding} L ${padding},${height - padding} Z`}
-              fill="url(#chartGradient)"
-            />
-
-            {/* Price Line */}
-            <path d={pathData} fill="none" stroke={strokeColor} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-
-          <div className="flex justify-between items-center text-[10px] text-slate-400 font-mono mt-1 px-1">
-            <span>Low: ${minPrice.toLocaleString()}</span>
-            <span>Current: ${lastClose.toLocaleString()}</span>
-            <span>High: ${maxPrice.toLocaleString()}</span>
+      <CardContent className="pt-3">
+        {loading && candles.length === 0 ? (
+          <div className="h-60 flex items-center justify-center text-xs text-cyan-400 animate-pulse">
+            [LOADING_TRADINGVIEW_CANDLESTICKS_FOR_{symbol}...]
           </div>
-        </div>
+        ) : null}
+        <div ref={chartContainerRef} className="w-full rounded-xl overflow-hidden border border-slate-800" />
       </CardContent>
     </Card>
   );
