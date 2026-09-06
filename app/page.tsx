@@ -47,6 +47,7 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [paperMessage, setPaperMessage] = useState<string | null>(null);
+  const [isHovered, setIsHovered] = useState(false);
 
   const carouselRef = useRef<HTMLDivElement>(null);
 
@@ -84,6 +85,24 @@ export default function Dashboard() {
   useEffect(() => {
     fetchOpps();
   }, [fetchOpps]);
+
+  // Smooth Auto-sliding Carousel Rotation Interval
+  useEffect(() => {
+    if (isHovered || opportunities.length === 0) return;
+
+    const timer = setInterval(() => {
+      if (carouselRef.current) {
+        const { scrollLeft, scrollWidth, clientWidth } = carouselRef.current;
+        if (scrollLeft + clientWidth >= scrollWidth - 10) {
+          carouselRef.current.scrollTo({ left: 0, behavior: "smooth" });
+        } else {
+          carouselRef.current.scrollBy({ left: 280, behavior: "smooth" });
+        }
+      }
+    }, 4000);
+
+    return () => clearInterval(timer);
+  }, [isHovered, opportunities]);
 
   const scrollCarousel = (direction: "left" | "right") => {
     if (carouselRef.current) {
@@ -219,16 +238,16 @@ export default function Dashboard() {
       <div className="relative z-10 grid grid-cols-1 lg:grid-cols-3 gap-3">
         {/* Left Column: Opportunities, Chart & AI Copilot (2 cols) */}
         <div className="lg:col-span-2 space-y-3">
-          {/* Cyber Opportunities Terminal - HORIZONTAL SLIDING CAROUSEL */}
+          {/* Cyber Opportunities Terminal - HORIZONTAL ANIMATED SLIDING CAROUSEL */}
           <Card className="bg-[#070d1e]/80 backdrop-blur-xl border border-cyan-500/20 shadow-[0_0_30px_rgba(0,0,0,0.5)] rounded-xl overflow-hidden relative">
             <div className="absolute top-0 right-0 w-80 h-80 bg-cyan-500/5 rounded-full blur-3xl pointer-events-none" />
 
             <CardHeader className="flex flex-row items-center justify-between py-1.5 px-3 border-b border-slate-800/80">
               <CardTitle className="text-xs font-black font-mono tracking-wider uppercase flex items-center space-x-2">
-                <span className="text-cyan-400 font-bold">◈</span>
+                <span className="text-cyan-400 font-bold animate-pulse">◈</span>
                 <span className="text-slate-100">{t.liveOpportunities}</span>
                 <Badge variant="success" className="text-[8px] font-mono font-bold py-0.5 px-1.5 bg-emerald-950 border border-emerald-500/50 text-emerald-400">
-                  [LIVE_TELEMETRY]
+                  [AUTO_ROTATE: LIVE]
                 </Badge>
               </CardTitle>
 
@@ -238,7 +257,7 @@ export default function Dashboard() {
                   variant="outline"
                   size="sm"
                   onClick={() => scrollCarousel("left")}
-                  className="text-[10px] h-6 w-6 p-0 bg-[#0a1124] border-cyan-500/30 text-cyan-300 hover:bg-cyan-500/20 font-bold rounded-md"
+                  className="text-[10px] h-6 w-6 p-0 bg-[#0a1124] border-cyan-500/30 text-cyan-300 hover:bg-cyan-500/20 font-bold rounded-md transition-transform hover:scale-110"
                   title="Slide Left"
                 >
                   ←
@@ -247,7 +266,7 @@ export default function Dashboard() {
                   variant="outline"
                   size="sm"
                   onClick={() => scrollCarousel("right")}
-                  className="text-[10px] h-6 w-6 p-0 bg-[#0a1124] border-cyan-500/30 text-cyan-300 hover:bg-cyan-500/20 font-bold rounded-md"
+                  className="text-[10px] h-6 w-6 p-0 bg-[#0a1124] border-cyan-500/30 text-cyan-300 hover:bg-cyan-500/20 font-bold rounded-md transition-transform hover:scale-110"
                   title="Slide Right"
                 >
                   →
@@ -275,9 +294,11 @@ export default function Dashboard() {
                   {t.noOpportunities}
                 </div>
               ) : (
-                /* HORIZONTAL SCROLLING ROW / ANIMATED SLIDER CAROUSEL */
+                /* HORIZONTAL SCROLLING ROW / ANIMATED AUTO-ROTATING SLIDER CAROUSEL */
                 <div
                   ref={carouselRef}
+                  onMouseEnter={() => setIsHovered(true)}
+                  onMouseLeave={() => setIsHovered(false)}
                   className="flex items-center space-x-2.5 overflow-x-auto pb-1 scroll-smooth snap-x scrollbar-thin scrollbar-thumb-cyan-500/30 font-mono"
                 >
                   {opportunities.map((opp) => {
@@ -288,9 +309,9 @@ export default function Dashboard() {
                       <div
                         key={opp.opportunityId}
                         onClick={() => toggleExpand(opp.opportunityId, opp.asset)}
-                        className={`min-w-[250px] max-w-[270px] shrink-0 snap-start p-2 rounded-xl border transition-all duration-300 cursor-pointer relative group ${
+                        className={`min-w-[250px] max-w-[270px] shrink-0 snap-start p-2 rounded-xl border transition-all duration-300 cursor-pointer relative group cyber-card ${
                           isSelected
-                            ? "bg-gradient-to-br from-[#0c162d] via-[#0d1a36] to-[#081024] border-cyan-400/80 shadow-[0_0_15px_rgba(6,182,212,0.25)]"
+                            ? "bg-gradient-to-br from-[#0c162d] via-[#0d1a36] to-[#081024] border-cyan-400/80 shadow-[0_0_20px_rgba(6,182,212,0.3)] scale-[1.02]"
                             : "bg-[#091022]/90 hover:bg-[#0c162e] border-slate-800/80 hover:border-cyan-500/40 shadow-sm"
                         }`}
                       >
@@ -309,7 +330,7 @@ export default function Dashboard() {
 
                           {/* HERO GIANT KPI SCORE */}
                           <div className="text-right flex items-baseline space-x-0.5">
-                            <span className="font-mono font-black text-3xl text-emerald-400 drop-shadow-[0_0_12px_rgba(16,185,129,0.7)]">
+                            <span className="font-mono font-black text-3xl text-emerald-400 drop-shadow-[0_0_12px_rgba(16,185,129,0.7)] group-hover:scale-105 transition-transform">
                               {opp.score}
                             </span>
                             <span className="text-[9px] text-slate-500 font-bold">/100</span>
