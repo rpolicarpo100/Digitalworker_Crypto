@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "GOD — Global Opportunity Detector",
+  title: "Digital Worker - Crypto",
   description: "Web3 AI Trading & Opportunity Intelligence Platform (100% Real Data)",
 };
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -37,13 +37,31 @@ interface ArbitrageData {
 
 export default function DexTerminal() {
   const [activeTab, setActiveTab] = useState<"pools" | "arbitrage">("pools");
-  const [query, setQuery] = useState("PEPE");
+  const [query, setQuery] = useState("SOL");
   const [pairs, setPairs] = useState<DexPair[]>([]);
   const [arbData, setArbData] = useState<ArbitrageData | null>(null);
   const [loading, setLoading] = useState(false);
 
-  async function handleSearch(q: string) {
-    if (!q) return;
+  const fetchTrendingPools = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/market/dex/trending");
+      if (res.ok) {
+        const json = await res.json();
+        setPairs(json.pairs || []);
+      }
+    } catch (err) {
+      console.error("DEX trending fetch failed:", err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const handleSearch = useCallback(async (q: string) => {
+    if (!q) {
+      fetchTrendingPools();
+      return;
+    }
     setLoading(true);
     try {
       const [dexRes, arbRes] = await Promise.all([
@@ -64,21 +82,22 @@ export default function DexTerminal() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [fetchTrendingPools]);
 
+  // Auto-load top real rating/trending pools on page load (Requirement 3)
   useEffect(() => {
-    handleSearch("PEPE");
-  }, []);
+    fetchTrendingPools();
+  }, [fetchTrendingPools]);
 
   return (
     <main className="flex-1 max-w-7xl w-full mx-auto p-4 space-y-4">
       <div className="flex items-center justify-between border-b border-slate-800 pb-3">
         <div className="flex items-center space-x-3">
           <Link href="/">
-            <Button variant="outline" size="sm">← Back to Terminal</Button>
+            <Button variant="outline" size="sm">← Back to Digital Worker</Button>
           </Link>
           <h1 className="text-xl font-bold text-slate-100">DEX Intelligence & Arbitrage Terminal</h1>
-          <Badge variant="success">100% Real Data</Badge>
+          <Badge variant="success">Auto Real Top Rating</Badge>
         </div>
         <div className="flex items-center space-x-2">
           <Button
@@ -98,26 +117,33 @@ export default function DexTerminal() {
         </div>
       </div>
 
-      <div className="flex items-center space-x-2">
-        <Input
-          placeholder="Search token / pair (e.g. PEPE, SOL, WIF)..."
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          className="max-w-md"
-        />
-        <Button onClick={() => handleSearch(query)} size="sm">Scan DEX Token</Button>
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center space-x-2 flex-1">
+          <Input
+            placeholder="Search token / pair (e.g. PEPE, SOL, WIF, ETH)..."
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleSearch(query)}
+            className="max-w-md"
+          />
+          <Button onClick={() => handleSearch(query)} size="sm">Search DEX Pairs</Button>
+        </div>
+        <Button variant="outline" size="sm" onClick={fetchTrendingPools}>
+          🔄 Top Real Rating
+        </Button>
       </div>
 
       {activeTab === "pools" ? (
         <Card className="bg-[#0b101e] border-slate-800">
-          <CardHeader>
-            <CardTitle className="text-sm">Real Liquidity Pools ({query})</CardTitle>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle className="text-sm">Real Top Rating Pools ({query || "Trending"})</CardTitle>
+            <Badge variant="outline" className="text-[10px]">Real-Time DEX Screener</Badge>
           </CardHeader>
           <CardContent>
             {loading ? (
-              <div className="py-8 text-center text-xs text-slate-500">Searching live DEX pools & auditing security...</div>
+              <div className="py-8 text-center text-xs text-slate-500">Searching live top DEX pools & auditing security...</div>
             ) : pairs.length === 0 ? (
-              <div className="py-8 text-center text-xs text-slate-400">No liquidity pools found for "{query}".</div>
+              <div className="py-8 text-center text-xs text-slate-400">No liquidity pools found.</div>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs border-collapse">

@@ -18,20 +18,34 @@ interface GroundedAiResponse {
   timestamp: string;
 }
 
+const KNOWN_SYMBOLS = ["BTC", "ETH", "SOL", "PEPE", "BNB", "AVAX", "XRP", "ADA", "DOGE", "LINK", "SUI", "APT", "NEAR", "RENDER", "FET", "WIF"];
+
+function extractSymbolFromQuery(text: string): string {
+  const upper = text.toUpperCase();
+  for (const sym of KNOWN_SYMBOLS) {
+    const regex = new RegExp(`\\b${sym}\\b`, "i");
+    if (regex.test(upper)) {
+      return sym;
+    }
+  }
+  return "BTC"; // default
+}
+
 export function AiCopilot() {
   const [query, setQuery] = useState("What opportunities exist for BTC right now?");
-  const [symbol, setSymbol] = useState("BTC");
   const [response, setResponse] = useState<GroundedAiResponse | null>(null);
   const [loading, setLoading] = useState(false);
 
   async function handleAsk() {
-    if (!query) return;
+    if (!query.trim()) return;
     setLoading(true);
+    const detectedSymbol = extractSymbolFromQuery(query);
+
     try {
       const res = await fetch("/api/ai/copilot", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query, symbol }),
+        body: JSON.stringify({ query, symbol: detectedSymbol }),
       });
       if (res.ok) {
         const json = await res.json();
@@ -62,18 +76,15 @@ export function AiCopilot() {
       <CardContent className="space-y-3">
         <div className="flex gap-2">
           <Input
-            placeholder="Ask AI Copilot (e.g. Why is BTC bullish? What could break this setup?)..."
+            placeholder="Pergunta ao Copilot (ex: Quais as oportunidades para BTC? Como está SOL?)..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleAsk()}
             className="flex-1"
           />
-          <Input
-            placeholder="Symbol"
-            value={symbol}
-            onChange={(e) => setSymbol(e.target.value.toUpperCase())}
-            className="w-24 font-mono uppercase"
-          />
-          <Button onClick={handleAsk} size="sm">Ask Copilot</Button>
+          <Button onClick={handleAsk} size="sm" disabled={loading}>
+            {loading ? "Analyzing..." : "Ask Copilot"}
+          </Button>
         </div>
 
         {loading && (

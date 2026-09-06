@@ -2,7 +2,7 @@ import { z } from "zod";
 
 const envSchema = z.object({
   NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
-  NEXT_PUBLIC_APP_NAME: z.string().default("GOD"),
+  NEXT_PUBLIC_APP_NAME: z.string().default("Digital Worker - Crypto"),
   NEXT_PUBLIC_APP_URL: z.string().default("http://localhost:3000"),
   
   // Supabase

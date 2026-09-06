@@ -7,7 +7,7 @@ import { riskEngine } from "@/lib/engine/risk";
 import { invalidationEngine } from "@/lib/engine/invalidation";
 import { fearGreedProvider } from "@/lib/providers/feargreed";
 
-const DEFAULT_SYMBOLS = ["BTC", "ETH", "SOL", "BNB", "AVAX"];
+const DEFAULT_SYMBOLS = ["BTC", "ETH", "SOL", "BNB", "AVAX", "PEPE", "LINK", "XRP"];
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
