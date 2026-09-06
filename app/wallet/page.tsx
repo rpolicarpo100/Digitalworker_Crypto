@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/ca
 import { Badge } from "../../components/ui/badge";
 import { Button } from "../../components/ui/button";
 import { LanguageToggle } from "../../components/ui/LanguageToggle";
-import { CyberShieldIcon, EnergyBoltIcon } from "../../components/ui/Icons";
+import { CyberShieldIcon, EnergyBoltIcon, RadarSweepIcon } from "../../components/ui/Icons";
 
 interface WhaleWallet {
   address: string;
@@ -25,8 +25,19 @@ interface WhaleWallet {
   lastActive: string;
 }
 
+interface WhaleAggregatedKpis {
+  totalWhalesCount: number;
+  totalWhaleAumUsd: number;
+  avgWinRatePercent: number;
+  totalRealizedProfitUsd: number;
+  topAccumulatedAssets: Array<{ symbol: string; totalAmountUsd: number }>;
+  netFlow24hUsd: number;
+  highRiskWhalesCount: number;
+}
+
 export default function WalletTrackerPage() {
   const [whales, setWhales] = useState<WhaleWallet[]>([]);
+  const [kpis, setKpis] = useState<WhaleAggregatedKpis | null>(null);
   const [loading, setLoading] = useState(true);
   const [chainFilter, setChainFilter] = useState("all");
 
@@ -38,6 +49,7 @@ export default function WalletTrackerPage() {
         if (res.ok) {
           const json = await res.json();
           setWhales(json.whales || []);
+          if (json.kpis) setKpis(json.kpis);
         }
       } catch (e) {
         console.error("Failed to load whales:", e);
@@ -63,11 +75,11 @@ export default function WalletTrackerPage() {
           <div className="flex items-center space-x-2">
             <span className="text-xl">🐋</span>
             <h1 className="text-xl font-black font-mono tracking-tight text-white uppercase bg-gradient-to-r from-cyan-300 via-sky-100 to-emerald-300 bg-clip-text text-transparent">
-              SMART MONEY & WHALE TRACKER
+              SMART MONEY & WHALE TRACKER ANALYTICS
             </h1>
           </div>
           <Badge variant="success" className="text-[9px] font-mono font-bold bg-emerald-950 border border-emerald-500/40 text-emerald-400">
-            [ONCHAIN_CLUSTER: ACTIVE]
+            [7_INSTITUTIONAL_NODES: ACTIVE]
           </Badge>
         </div>
 
@@ -76,10 +88,44 @@ export default function WalletTrackerPage() {
         </div>
       </div>
 
+      {/* Aggregated KPI Dashboard Bar */}
+      {kpis && (
+        <div className="relative z-10 grid grid-cols-2 md:grid-cols-4 gap-3 font-mono">
+          <Card className="bg-[#070d1e]/80 backdrop-blur-xl border border-cyan-500/20 rounded-2xl p-3 shadow-lg">
+            <span className="text-slate-400 block text-[9px] font-bold uppercase">[TOTAL_WHALE_AUM]</span>
+            <span className="text-emerald-400 text-xl font-black">${(kpis.totalWhaleAumUsd / 1e6).toFixed(1)}M</span>
+            <span className="text-[10px] text-slate-500 block">Across {kpis.totalWhalesCount} Monitored Wallets</span>
+          </Card>
+
+          <Card className="bg-[#070d1e]/80 backdrop-blur-xl border border-cyan-500/20 rounded-2xl p-3 shadow-lg">
+            <span className="text-slate-400 block text-[9px] font-bold uppercase">[AVERAGE_WIN_RATE]</span>
+            <span className="text-cyan-300 text-xl font-black">{kpis.avgWinRatePercent}%</span>
+            <span className="text-[10px] text-emerald-400 block">High Conviction Cluster</span>
+          </Card>
+
+          <Card className="bg-[#070d1e]/80 backdrop-blur-xl border border-cyan-500/20 rounded-2xl p-3 shadow-lg">
+            <span className="text-slate-400 block text-[9px] font-bold uppercase">[NET_FLOW_24H]</span>
+            <span className="text-emerald-400 text-xl font-black">+${(kpis.netFlow24hUsd / 1e6).toFixed(1)}M</span>
+            <span className="text-[10px] text-slate-500 block">Active Capital Accumulation</span>
+          </Card>
+
+          <Card className="bg-[#070d1e]/80 backdrop-blur-xl border border-cyan-500/20 rounded-2xl p-3 shadow-lg">
+            <span className="text-slate-400 block text-[9px] font-bold uppercase">[TOP_ACCUMULATED]</span>
+            <div className="flex items-center space-x-2 mt-1">
+              {kpis.topAccumulatedAssets.slice(0, 3).map((a) => (
+                <Badge key={a.symbol} variant="outline" className="text-[10px] font-bold border-cyan-500/40 text-cyan-300">
+                  {a.symbol} (${(a.totalAmountUsd / 1e6).toFixed(1)}M)
+                </Badge>
+              ))}
+            </div>
+          </Card>
+        </div>
+      )}
+
       {/* Filter Bar */}
       <div className="relative z-10 flex items-center space-x-2 overflow-x-auto pb-1 text-xs bg-[#070d1e]/80 p-3 rounded-2xl border border-cyan-500/20">
         <span className="text-slate-500 font-mono text-[9px] uppercase font-bold mr-1">[FILTER_CHAIN]:</span>
-        {["all", "solana", "ethereum", "arbitrum"].map((chain) => (
+        {["all", "solana", "ethereum", "arbitrum", "bsc", "polygon"].map((chain) => (
           <button
             key={chain}
             onClick={() => setChainFilter(chain)}
