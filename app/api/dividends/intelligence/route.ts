@@ -3,7 +3,7 @@ import { stockEngine } from "@/lib/engines/stock-engine";
 import { dividendEngine } from "@/lib/engines/dividend-engine";
 
 export async function GET() {
-  const dividendTickers = ["MC", "SHEL", "JPM", "PG", "O", "TTE.PA"];
+  const dividendTickers = ["O", "JNJ", "SCHD", "MO", "VICI", "MAIN", "JPM", "PG", "SHEL", "MC"];
 
   const dividendReports = await Promise.all(
     dividendTickers.map(async (sym) => {

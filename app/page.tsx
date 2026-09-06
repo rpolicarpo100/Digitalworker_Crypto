@@ -160,6 +160,11 @@ export default function Dashboard() {
               💰 Dividends
             </Button>
           </Link>
+          <Link href="/small-caps">
+            <Button variant="outline" size="sm" className="bg-[#0b142b] border-cyan-500/40 text-cyan-300 hover:bg-cyan-500 hover:text-black font-bold text-xs rounded-xl">
+              🔬 Small Caps
+            </Button>
+          </Link>
           <Link href="/sectors">
             <Button variant="outline" size="sm" className="bg-[#0b142b] border-cyan-500/40 text-cyan-300 hover:bg-cyan-500 hover:text-black font-bold text-xs rounded-xl">
               📈 Sectors
