@@ -2,20 +2,20 @@
 
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
-import { GlobalMarket } from "@/components/dashboard/GlobalMarket";
-import { PriceTicker } from "@/components/dashboard/PriceTicker";
-import { SystemHealth } from "@/components/dashboard/SystemHealth";
-import { AiCopilot } from "@/components/dashboard/AiCopilot";
-import { PriceChart } from "@/components/dashboard/PriceChart";
-import { OrderBookVisualizer } from "@/components/dashboard/OrderBookVisualizer";
-import { RiskRadar } from "@/components/dashboard/RiskRadar";
-import { OrderImpactCalculator } from "@/components/dashboard/OrderImpactCalculator";
-import { SkepticalAuditWidget } from "@/components/dashboard/SkepticalAuditWidget";
-import { LanguageToggle } from "@/components/ui/LanguageToggle";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { translations, Language } from "@/lib/i18n/translations";
+import { GlobalMarket } from "../components/dashboard/GlobalMarket";
+import { PriceTicker } from "../components/dashboard/PriceTicker";
+import { SystemHealth } from "../components/dashboard/SystemHealth";
+import { AiCopilot } from "../components/dashboard/AiCopilot";
+import { PriceChart } from "../components/dashboard/PriceChart";
+import { OrderBookVisualizer } from "../components/dashboard/OrderBookVisualizer";
+import { RiskRadar } from "../components/dashboard/RiskRadar";
+import { OrderImpactCalculator } from "../components/dashboard/OrderImpactCalculator";
+import { SkepticalAuditWidget } from "../components/dashboard/SkepticalAuditWidget";
+import { LanguageToggle } from "../components/ui/LanguageToggle";
+import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
+import { Badge } from "../components/ui/badge";
+import { Button } from "../components/ui/button";
+import { translations, Language } from "../lib/i18n/translations";
 
 interface Opportunity {
   opportunityId: string;
@@ -47,6 +47,7 @@ export default function Dashboard() {
   const [expandedOppId, setExpandedOppId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [paperMessage, setPaperMessage] = useState<string | null>(null);
 
   useEffect(() => {
     const saved = (localStorage.getItem("app_lang") as Language) || "pt";
@@ -88,136 +89,248 @@ export default function Dashboard() {
     setExpandedOppId(expandedOppId === id ? null : id);
   };
 
+  const handleQuickPaperTrade = async (asset: string, price: number, side: "BUY" | "SELL") => {
+    setPaperMessage(`[PAPER_EXECUTION] Transação ${side} iniciada para ${asset}...`);
+    try {
+      const res = await fetch("/api/paper-trading/order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          symbol: asset,
+          side,
+          quantity: side === "BUY" ? 1000 / price : 500 / price,
+        }),
+      });
+
+      if (res.ok) {
+        setPaperMessage(`[CONFIRMED] Ordem ${side} executada em ${asset} @ $${price.toLocaleString()}!`);
+      } else {
+        setPaperMessage(`[REJECTED] Falha na execução da ordem`);
+      }
+    } catch {
+      setPaperMessage(`[ERROR] Erro no barramento de execução`);
+    }
+
+    setTimeout(() => setPaperMessage(null), 4000);
+  };
+
   return (
-    <main className="flex-1 max-w-7xl w-full mx-auto p-4 space-y-4">
-      {/* Header */}
-      <header className="flex items-center justify-between border-b border-slate-800/80 pb-3">
+    <main className="flex-1 max-w-7xl w-full mx-auto p-4 space-y-4 bg-[#030712] min-h-screen text-slate-100 font-sans selection:bg-cyan-500 selection:text-black relative">
+      {/* Background Cyber-Grid subtle background pattern */}
+      <div className="fixed inset-0 bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:24px_24px] opacity-25 pointer-events-none z-0" />
+
+      {/* Cyber HUD Header */}
+      <header className="relative z-10 flex flex-wrap items-center justify-between border border-cyan-500/20 bg-[#070d1e]/80 backdrop-blur-xl p-3.5 rounded-2xl shadow-[0_0_30px_rgba(6,182,212,0.08)]">
         <div className="flex items-center space-x-3">
-          <h1 className="text-xl font-bold tracking-tight bg-gradient-to-r from-blue-400 via-indigo-300 to-emerald-400 bg-clip-text text-transparent">
-            {t.appName}
-          </h1>
-          <Badge variant="outline" className="text-[10px]">{t.version}</Badge>
+          <div className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500/20 via-blue-600/20 to-emerald-500/20 border border-cyan-400/40 shadow-[0_0_15px_rgba(6,182,212,0.3)] font-mono font-black text-cyan-300 text-lg">
+            ⚡
+            <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-cyan-400 rounded-full animate-ping" />
+          </div>
+
+          <div>
+            <div className="flex items-center space-x-2">
+              <h1 className="text-xl font-black tracking-tight text-white font-mono uppercase bg-gradient-to-r from-cyan-300 via-sky-100 to-emerald-300 bg-clip-text text-transparent">
+                DIGITAL WORKER // CRYPTO HUD
+              </h1>
+              <span className="text-[9px] font-mono px-2 py-0.5 rounded bg-cyan-950/80 border border-cyan-500/40 text-cyan-300 font-bold uppercase tracking-widest">
+                [SYS_CORE: v0.5]
+              </span>
+            </div>
+            <p className="text-[10px] text-slate-400 font-mono flex items-center space-x-2 mt-0.5">
+              <span className="text-emerald-400 font-bold">[100% REAL DATA FEED]</span>
+              <span>•</span>
+              <span className="text-slate-500">NODE: LISBON_PT</span>
+              <span>•</span>
+              <span className="text-cyan-400 font-bold">MEV_SHIELD: ARMED</span>
+            </p>
+          </div>
         </div>
-        <div className="flex items-center space-x-3">
+
+        <div className="flex items-center space-x-3 mt-2 sm:mt-0">
           <Link href="/dex">
-            <Button variant="outline" size="sm">{t.dexTerminal}</Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="bg-[#0b142b] border-cyan-500/40 text-cyan-300 hover:bg-cyan-500 hover:text-black font-mono font-bold text-xs transition-all duration-300 shadow-[0_0_15px_rgba(6,182,212,0.15)] rounded-xl"
+            >
+              ❖ {t.dexTerminal}
+            </Button>
           </Link>
           <LanguageToggle />
           <SystemHealth />
         </div>
       </header>
 
-      {/* Global Bar & Price Ticker */}
-      <GlobalMarket />
-      <PriceTicker />
+      {/* Global Market Bar & Ticker */}
+      <div className="relative z-10">
+        <GlobalMarket />
+      </div>
+      <div className="relative z-10">
+        <PriceTicker />
+      </div>
 
-      {/* Main Terminal Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {/* Left: Opportunities, Chart & AI Copilot (2 cols) */}
+      {/* Toast Cyber Alert Notification */}
+      {paperMessage && (
+        <div className="relative z-10 p-3 bg-cyan-950/90 border border-cyan-400/60 rounded-xl text-cyan-200 text-xs font-mono font-bold flex items-center justify-between shadow-[0_0_20px_rgba(6,182,212,0.3)] animate-in fade-in slide-in-from-top-2">
+          <span className="flex items-center space-x-2">
+            <span className="animate-pulse text-cyan-400">⚡</span>
+            <span>{paperMessage}</span>
+          </span>
+          <span className="text-[9px] text-cyan-400/80 uppercase tracking-widest font-mono">PAPER_EXECUTION_BAR</span>
+        </div>
+      )}
+
+      {/* Main Grid Layout */}
+      <div className="relative z-10 grid grid-cols-1 lg:grid-cols-3 gap-4">
+        {/* Left Column: Opportunities, Chart & AI Copilot (2 cols) */}
         <div className="lg:col-span-2 space-y-4">
-          {/* Opportunities Terminal */}
-          <Card className="bg-[#0b101e] border-slate-800">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-semibold flex items-center space-x-2">
-                <span>{t.liveOpportunities}</span>
-                <Badge variant="success" className="text-[10px]">{t.realtimeEngine}</Badge>
+          {/* Cyber Opportunities Terminal */}
+          <Card className="bg-[#070d1e]/80 backdrop-blur-xl border border-cyan-500/20 shadow-[0_0_30px_rgba(0,0,0,0.5)] rounded-2xl overflow-hidden relative">
+            <div className="absolute top-0 right-0 w-80 h-80 bg-cyan-500/5 rounded-full blur-3xl pointer-events-none" />
+
+            <CardHeader className="flex flex-row items-center justify-between pb-3 border-b border-slate-800/80">
+              <CardTitle className="text-sm font-black font-mono tracking-wider uppercase flex items-center space-x-2">
+                <span className="text-cyan-400 font-bold">◈</span>
+                <span className="text-slate-100">{t.liveOpportunities}</span>
+                <Badge variant="success" className="text-[9px] font-mono font-bold bg-emerald-950 border border-emerald-500/50 text-emerald-400 shadow-[0_0_10px_rgba(16,185,129,0.3)]">
+                  [LIVE_TELEMETRY]
+                </Badge>
               </CardTitle>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={fetchOpps}
                 disabled={isRefreshing}
-                className="text-xs py-1 px-2.5"
+                className="text-xs py-1 px-3 bg-[#0a1124] border-cyan-500/30 text-cyan-300 hover:bg-cyan-500/20 font-mono font-bold transition-all duration-300 rounded-lg"
               >
                 {isRefreshing ? t.updatingBtn : t.updateBtn}
               </Button>
             </CardHeader>
 
-            <CardContent>
+            <CardContent className="pt-4">
               {loading ? (
-                <div className="py-8 text-center text-xs text-slate-500 animate-pulse">
-                  Scanning real market prices, indicators & technical setups...
+                <div className="py-12 text-center text-xs font-mono text-cyan-400/80 animate-pulse flex flex-col items-center justify-center space-y-3">
+                  <div className="w-9 h-9 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin" />
+                  <span>[SCANNING_QUANT_FEEDS & INDICATORS...]</span>
                 </div>
               ) : opportunities.length === 0 ? (
-                <div className="py-8 text-center text-xs text-slate-400">
+                <div className="py-12 text-center text-xs font-mono text-slate-400">
                   {t.noOpportunities}
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {opportunities.map((opp) => {
                     const isExpanded = expandedOppId === opp.opportunityId;
+                    const isSelected = selectedAsset === opp.asset;
+
                     return (
                       <div
                         key={opp.opportunityId}
                         onClick={() => toggleExpand(opp.opportunityId, opp.asset)}
-                        className={`p-3 bg-[#0d1527] border rounded transition-all cursor-pointer ${
-                          isExpanded ? "border-blue-500 shadow-md bg-[#0f192e]" : "border-slate-800/80 hover:border-slate-700"
+                        className={`p-4 rounded-xl border transition-all duration-300 cursor-pointer relative group ${
+                          isSelected
+                            ? "bg-gradient-to-br from-[#0c162d] via-[#0d1a36] to-[#081024] border-cyan-400/80 shadow-[0_0_25px_rgba(6,182,212,0.2)]"
+                            : "bg-[#091022]/90 hover:bg-[#0c162e] border-slate-800/80 hover:border-cyan-500/40 shadow-lg"
                         }`}
                       >
-                        {/* Compact KPI Card Header */}
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="flex items-center space-x-2">
-                            <span className="font-bold text-sm text-slate-100">{opp.asset}</span>
-                            <Badge variant="outline" className="text-[10px] px-1.5 py-0">
-                              {opp.opportunityType}
-                            </Badge>
+                        {/* Futuristic Bracket Accents */}
+                        <span className="absolute top-1 left-1 text-[8px] font-mono text-cyan-500/40">┌</span>
+                        <span className="absolute top-1 right-1 text-[8px] font-mono text-cyan-500/40">┐</span>
+                        <span className="absolute bottom-1 left-1 text-[8px] font-mono text-cyan-500/40">└</span>
+                        <span className="absolute bottom-1 right-1 text-[8px] font-mono text-cyan-500/40">┘</span>
+
+                        {/* Top Tile Header */}
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center space-x-2.5">
+                            <div className="w-8 h-8 rounded-lg bg-cyan-950/80 border border-cyan-500/40 flex items-center justify-center font-mono font-black text-xs text-cyan-300 shadow-[0_0_10px_rgba(6,182,212,0.2)]">
+                              {opp.asset.slice(0, 3)}
+                            </div>
+                            <div>
+                              <span className="font-mono font-black text-base text-white tracking-wide">{opp.asset}</span>
+                              <span className="ml-2 text-[9px] font-mono px-1.5 py-0.5 rounded bg-blue-950/80 border border-blue-500/40 text-blue-300 uppercase font-bold">
+                                {opp.opportunityType}
+                              </span>
+                            </div>
                           </div>
+
                           <div className="text-right">
-                            <span className="font-bold text-sm text-emerald-400 font-mono">
-                              {opp.score}/100
+                            <span className="font-mono font-black text-base text-emerald-400 drop-shadow-[0_0_8px_rgba(16,185,129,0.4)]">
+                              {opp.score}<span className="text-[10px] text-slate-500">/100</span>
                             </span>
-                            <span className="text-[10px] text-slate-500 block">{t.score}</span>
+                            <span className="text-[9px] font-mono text-slate-400 uppercase block font-bold tracking-wider">{t.score}</span>
                           </div>
                         </div>
 
-                        {/* High Density KPIs Grid */}
-                        <div className="grid grid-cols-3 gap-1.5 text-[11px] bg-[#080e1a] p-2 rounded mb-2">
+                        {/* High-Density Clean Telemetry Metrics Grid */}
+                        <div className="grid grid-cols-3 gap-2 text-[11px] bg-[#040814] p-2.5 rounded-lg mb-3 border border-slate-800/80 font-mono">
                           <div>
-                            <span className="text-slate-500 block text-[10px]">{t.price}:</span>
-                            <span className="font-mono text-slate-200 font-medium">
+                            <span className="text-slate-500 block text-[9px] font-bold uppercase">{t.price}:</span>
+                            <span className="text-slate-100 font-black text-xs">
                               ${opp.currentPrice > 10 ? opp.currentPrice.toLocaleString() : opp.currentPrice.toFixed(4)}
                             </span>
                           </div>
                           <div>
-                            <span className="text-slate-500 block text-[10px]">{t.trendRsi}:</span>
-                            <span className="text-slate-200">
+                            <span className="text-slate-500 block text-[9px] font-bold uppercase">{t.trendRsi}:</span>
+                            <span className="text-slate-200 font-bold">
                               {opp.technicalSummary.trend} ({opp.technicalSummary.rsi})
                             </span>
                           </div>
                           <div>
-                            <span className="text-slate-500 block text-[10px]">{t.riskLevel}:</span>
-                            <span className={opp.riskLevel === "LOW" ? "text-emerald-400 font-medium" : "text-amber-400 font-medium"}>
+                            <span className="text-slate-500 block text-[9px] font-bold uppercase">{t.riskLevel}:</span>
+                            <span className={opp.riskLevel === "LOW" ? "text-emerald-400 font-black" : "text-amber-400 font-black"}>
                               {opp.riskLevel}
                             </span>
                           </div>
                         </div>
 
-                        <div className="flex items-center justify-between text-[10px] text-slate-400">
-                          <span>{t.source}: {opp.source}</span>
-                          <span className="text-blue-400 underline">
-                            {isExpanded ? t.hideDetail : t.showDetail}
+                        {/* Bottom Row Actions & Indicator */}
+                        <div className="flex items-center justify-between text-[10px] font-mono text-slate-400">
+                          <span className="text-slate-500">FEED: {opp.source}</span>
+                          <span className="text-cyan-400 font-bold group-hover:underline flex items-center space-x-1">
+                            <span>{isExpanded ? t.hideDetail : t.showDetail}</span>
                           </span>
                         </div>
 
-                        {/* Expanded Drawer Details */}
+                        {/* Expanded Cyber Drawer Details & Instant Paper Execution */}
                         {isExpanded && (
-                          <div className="mt-2 pt-2 border-t border-slate-800/80 text-[11px] space-y-2 bg-[#060a14] p-2.5 rounded text-slate-300">
+                          <div
+                            className="mt-3 pt-3 border-t border-slate-800 text-[11px] font-sans space-y-2.5 bg-[#030610] p-3 rounded-xl text-slate-300 animate-in fade-in duration-200 border border-slate-800/80"
+                            onClick={(e) => e.stopPropagation()}
+                          >
                             <div>
-                              <span className="text-emerald-400 font-semibold block mb-0.5">{t.entrySetup}:</span>
-                              <p className="text-slate-300">{opp.conditions.entryConditions[0]}</p>
+                              <span className="text-emerald-400 font-mono font-bold block mb-0.5 text-[10px] uppercase">[SETUP_ENTRY]:</span>
+                              <p className="text-slate-200 leading-snug">{opp.conditions.entryConditions[0]}</p>
                             </div>
                             <div>
-                              <span className="text-rose-400 font-semibold block mb-0.5">{t.invalidationThreshold}:</span>
-                              <p className="text-slate-300">{opp.conditions.invalidationConditions[0]}</p>
+                              <span className="text-rose-400 font-mono font-bold block mb-0.5 text-[10px] uppercase">[INVALIDATION_LIMIT]:</span>
+                              <p className="text-slate-200 leading-snug">{opp.conditions.invalidationConditions[0]}</p>
                             </div>
                             <div>
-                              <span className="text-blue-400 font-semibold block mb-0.5">{t.targetExit}:</span>
-                              <p className="text-slate-300">{opp.conditions.exitConditions[0]}</p>
+                              <span className="text-cyan-400 font-mono font-bold block mb-0.5 text-[10px] uppercase">[TARGET_EXIT]:</span>
+                              <p className="text-slate-200 leading-snug">{opp.conditions.exitConditions[0]}</p>
                             </div>
-                            <div className="pt-1 text-right">
-                              <Link href={`/asset/${opp.asset}`} className="text-blue-400 hover:underline text-[11px]">
-                                {t.openFullTerminal} ({opp.asset}) →
-                              </Link>
+
+                            {/* Futuristic Cyber Buttons */}
+                            <div className="pt-2 border-t border-slate-800 flex items-center justify-between font-mono">
+                              <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">[PAPER_TRIGGER]:</span>
+                              <div className="flex items-center space-x-2">
+                                <Button
+                                  variant="default"
+                                  size="sm"
+                                  onClick={() => handleQuickPaperTrade(opp.asset, opp.currentPrice, "BUY")}
+                                  className="bg-emerald-600 hover:bg-emerald-500 text-white font-mono font-black text-[10px] h-6 px-3 shadow-[0_0_12px_rgba(16,185,129,0.4)] rounded-lg"
+                                >
+                                  [ENTER_LONG]
+                                </Button>
+                                <Button
+                                  variant="destructive"
+                                  size="sm"
+                                  onClick={() => handleQuickPaperTrade(opp.asset, opp.currentPrice, "SELL")}
+                                  className="bg-rose-600 hover:bg-rose-500 text-white font-mono font-black text-[10px] h-6 px-3 shadow-[0_0_12px_rgba(244,63,94,0.4)] rounded-lg"
+                                >
+                                  [ENTER_SHORT]
+                                </Button>
+                              </div>
                             </div>
                           </div>
                         )}
@@ -229,71 +342,70 @@ export default function Dashboard() {
             </CardContent>
           </Card>
 
-          {/* Real-time Price Chart */}
+          {/* Real-time SVG Price Chart */}
           <PriceChart symbol={selectedAsset} />
 
-          {/* Order Impact & MEV Realism Simulator */}
+          {/* MEV & Order Impact Realism Simulator */}
           <OrderImpactCalculator symbol={selectedAsset} />
 
-          {/* AI Copilot */}
+          {/* AI Multi-Agent Copilot */}
           <AiCopilot />
         </div>
 
-        {/* Right: Orderbook Depth, Risk Radar & Engine Status (1 col) */}
+        {/* Right Column: Orderbook Depth, Risk Radar & Skeptical Audit (1 col) */}
         <div className="space-y-4">
           <OrderBookVisualizer symbol={selectedAsset} />
           <RiskRadar symbol={selectedAsset} />
           <SkepticalAuditWidget />
 
-          <Card className="bg-[#0b101e] border-slate-800">
-            <CardHeader>
-              <CardTitle className="text-sm font-semibold">{t.aiAgentsStatus}</CardTitle>
+          {/* Neural Multi-Agent Status */}
+          <Card className="bg-[#070d1e]/80 backdrop-blur-xl border border-cyan-500/20 shadow-xl rounded-2xl">
+            <CardHeader className="pb-2 border-b border-slate-800/80">
+              <CardTitle className="text-sm font-black font-mono tracking-wider uppercase flex items-center space-x-2">
+                <span className="text-cyan-400">❖</span>
+                <span>{t.aiAgentsStatus}</span>
+              </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-2 text-xs">
-              <div className="flex justify-between items-center py-1 border-b border-slate-800/60">
-                <span className="text-slate-300">Market Scanner Agent</span>
-                <Badge variant="success">Active</Badge>
-              </div>
-              <div className="flex justify-between items-center py-1 border-b border-slate-800/60">
-                <span className="text-slate-300">Technical Analyst Agent</span>
-                <Badge variant="success">Active</Badge>
-              </div>
-              <div className="flex justify-between items-center py-1 border-b border-slate-800/60">
-                <span className="text-slate-300">Token Security Analyst</span>
-                <Badge variant="success">Active</Badge>
-              </div>
-              <div className="flex justify-between items-center py-1 border-b border-slate-800/60">
-                <span className="text-slate-300">Arbitrage Net Edge Analyst</span>
-                <Badge variant="success">Active</Badge>
-              </div>
-              <div className="flex justify-between items-center py-1 border-b border-slate-800/60">
-                <span className="text-slate-300">Risk Manager Agent</span>
-                <Badge variant="success">Active (Veto)</Badge>
-              </div>
-              <div className="flex justify-between items-center py-1 border-b border-slate-800/60">
-                <span className="text-slate-300">Contrarian AI Judge</span>
-                <Badge variant="success">Active</Badge>
-              </div>
+            <CardContent className="space-y-2 text-xs pt-3 font-mono">
+              {[
+                { name: "Market Scanner Agent", status: "ACTIVE" },
+                { name: "Technical Analyst Agent", status: "ACTIVE" },
+                { name: "Token Security Analyst", status: "ACTIVE" },
+                { name: "Arbitrage Net Edge Analyst", status: "ACTIVE" },
+                { name: "Risk Manager Agent", status: "ARMED (VETO)" },
+                { name: "Contrarian AI Judge", status: "ACTIVE" },
+              ].map((agent, i) => (
+                <div key={i} className="flex justify-between items-center py-1.5 border-b border-slate-800/50">
+                  <span className="text-slate-300 font-bold">{agent.name}</span>
+                  <Badge variant="success" className="text-[9px] font-mono font-bold bg-emerald-950 border border-emerald-500/40 text-emerald-400">
+                    [{agent.status}]
+                  </Badge>
+                </div>
+              ))}
             </CardContent>
           </Card>
 
-          <Card className="bg-[#0b101e] border-slate-800">
-            <CardHeader>
-              <CardTitle className="text-sm font-semibold">{t.engineOverview}</CardTitle>
+          {/* Futuristic Engine Overview */}
+          <Card className="bg-[#070d1e]/80 backdrop-blur-xl border border-cyan-500/20 shadow-xl rounded-2xl">
+            <CardHeader className="pb-2 border-b border-slate-800/80">
+              <CardTitle className="text-sm font-black font-mono tracking-wider uppercase flex items-center space-x-2">
+                <span className="text-amber-400">⚡</span>
+                <span>{t.engineOverview}</span>
+              </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-2 text-xs text-slate-300">
-              <div className="p-2 bg-[#080d19] rounded border border-slate-800/80 space-y-1">
-                <div className="flex justify-between">
+            <CardContent className="pt-3 text-xs font-mono text-slate-300">
+              <div className="p-3 bg-[#040814] rounded-xl border border-slate-800 space-y-2">
+                <div className="flex justify-between items-center">
                   <span className="text-slate-400">{t.dataFeed}:</span>
-                  <span className="text-emerald-400 font-medium">100% Real Live APIs</span>
+                  <span className="text-emerald-400 font-bold">100% REAL APIS</span>
                 </div>
-                <div className="flex justify-between">
+                <div className="flex justify-between items-center">
                   <span className="text-slate-400">{t.securityVeto}:</span>
-                  <span className="text-blue-400 font-medium">Auto-Risk Guard</span>
+                  <span className="text-cyan-400 font-bold">AUTO_RISK_GUARD</span>
                 </div>
-                <div className="flex justify-between">
+                <div className="flex justify-between items-center">
                   <span className="text-slate-400">{t.aiReasoning}:</span>
-                  <span className="text-amber-400 font-medium">Grounded & Contrarian</span>
+                  <span className="text-amber-400 font-bold">GROUNDED & CONTRARIAN</span>
                 </div>
               </div>
             </CardContent>

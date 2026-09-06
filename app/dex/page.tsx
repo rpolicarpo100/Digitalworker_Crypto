@@ -2,13 +2,13 @@
 
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { LanguageToggle } from "@/components/ui/LanguageToggle";
-import { translations, Language } from "@/lib/i18n/translations";
-import { mevSlippageEngine } from "@/lib/engines/mev-slippage-engine";
+import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
+import { Badge } from "../../components/ui/badge";
+import { Button } from "../../components/ui/button";
+import { Input } from "../../components/ui/input";
+import { LanguageToggle } from "../../components/ui/LanguageToggle";
+import { translations, Language } from "../../lib/i18n/translations";
+import { mevSlippageEngine } from "../../lib/engines/mev-slippage-engine";
 
 interface DexPair {
   chainId: string;
@@ -117,39 +117,53 @@ export default function DexTerminal() {
     : pairs.filter((p) => p.chainId.toLowerCase() === selectedChain.toLowerCase());
 
   return (
-    <main className="flex-1 max-w-7xl w-full mx-auto p-4 space-y-4">
-      {/* Header */}
-      <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+    <main className="flex-1 max-w-7xl w-full mx-auto p-4 space-y-4 bg-[#030712] min-h-screen text-slate-100 font-sans relative">
+      <div className="fixed inset-0 bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:24px_24px] opacity-25 pointer-events-none z-0" />
+
+      {/* Cyber Header Banner */}
+      <div className="relative z-10 flex flex-wrap items-center justify-between border border-cyan-500/20 bg-[#070d1e]/80 backdrop-blur-xl p-3.5 rounded-2xl shadow-[0_0_30px_rgba(6,182,212,0.08)]">
         <div className="flex items-center space-x-3">
           <Link href="/">
-            <Button variant="outline" size="sm">{t.backToTerminal}</Button>
+            <Button variant="outline" size="sm" className="bg-[#0b142b] border-cyan-500/40 text-cyan-300 hover:bg-cyan-500 hover:text-black font-mono font-bold text-xs transition-all duration-300 rounded-xl">
+              {t.backToTerminal}
+            </Button>
           </Link>
-          <h1 className="text-xl font-bold text-slate-100">{t.dexTitle}</h1>
-          <Badge variant="success" className="text-[10px]">{t.autoTopRating}</Badge>
+          <div className="flex items-center space-x-2">
+            <span className="text-xl">❖</span>
+            <h1 className="text-xl font-black font-mono tracking-tight text-white uppercase bg-gradient-to-r from-cyan-300 via-sky-100 to-emerald-300 bg-clip-text text-transparent">
+              {t.dexTitle}
+            </h1>
+          </div>
+          <Badge variant="success" className="text-[9px] font-mono font-bold bg-emerald-950 border border-emerald-500/40 text-emerald-400">
+            [AUTO_TOP_RATING]
+          </Badge>
         </div>
-        <div className="flex items-center space-x-3">
-          <div className="flex items-center space-x-1">
+
+        <div className="flex items-center space-x-3 mt-2 sm:mt-0">
+          <div className="flex items-center space-x-1 border border-cyan-500/30 rounded-xl p-0.5 bg-[#040814]">
             <Button
-              variant={activeTab === "pools" ? "default" : "outline"}
+              variant={activeTab === "pools" ? "default" : "ghost"}
               size="sm"
               onClick={() => setActiveTab("pools")}
+              className={`text-xs font-mono font-bold px-3 ${activeTab === "pools" ? "bg-cyan-600 text-white shadow-[0_0_12px_rgba(6,182,212,0.4)]" : "text-slate-400"}`}
             >
-              {t.poolsTab}
+              🌊 {t.poolsTab}
             </Button>
             <Button
-              variant={activeTab === "arbitrage" ? "default" : "outline"}
+              variant={activeTab === "arbitrage" ? "default" : "ghost"}
               size="sm"
               onClick={() => setActiveTab("arbitrage")}
+              className={`text-xs font-mono font-bold px-3 ${activeTab === "arbitrage" ? "bg-cyan-600 text-white shadow-[0_0_12px_rgba(6,182,212,0.4)]" : "text-slate-400"}`}
             >
-              {t.arbTab}
+              ⚡ {t.arbTab}
             </Button>
           </div>
           <LanguageToggle />
         </div>
       </div>
 
-      {/* Search & Chain Filters */}
-      <div className="space-y-2">
+      {/* Cyber Search & Filter Bar */}
+      <div className="relative z-10 space-y-3 bg-[#070d1e]/80 p-3.5 rounded-2xl border border-cyan-500/20 backdrop-blur-xl shadow-lg">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center space-x-2 flex-1">
             <Input
@@ -157,31 +171,31 @@ export default function DexTerminal() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSearch(query)}
-              className="max-w-md bg-[#080e1a] border-slate-800 text-xs"
+              className="max-w-md bg-[#040814] border-slate-800 text-xs font-mono focus:border-cyan-400 text-slate-100"
             />
-            <Button onClick={() => handleSearch(query)} size="sm" className="text-xs">
-              {t.searchBtn}
+            <Button onClick={() => handleSearch(query)} size="sm" className="text-xs bg-cyan-600 hover:bg-cyan-500 font-mono font-bold px-4 shadow-[0_0_12px_rgba(6,182,212,0.4)]">
+              🔍 {t.searchBtn}
             </Button>
           </div>
-          <Button variant="outline" size="sm" onClick={fetchTrendingPools} className="text-xs">
-            {t.topRealRatingBtn}
+          <Button variant="outline" size="sm" onClick={fetchTrendingPools} className="text-xs bg-[#0b142b] border-cyan-500/30 text-cyan-300 font-mono font-bold hover:bg-cyan-500 hover:text-black">
+            🔄 {t.topRealRatingBtn}
           </Button>
         </div>
 
         {/* Chain Selector Filter Chips */}
-        <div className="flex items-center space-x-1.5 overflow-x-auto pb-1 text-xs">
-          <span className="text-slate-500 text-[10px] uppercase font-bold mr-1">Chain:</span>
+        <div className="flex items-center space-x-2 overflow-x-auto pb-1 text-xs">
+          <span className="text-slate-500 text-[9px] font-mono uppercase font-bold mr-1 tracking-widest">[BLOCKCHAIN]:</span>
           {["ALL", "solana", "ethereum", "bsc", "arbitrum", "base"].map((chain) => (
             <button
               key={chain}
               onClick={() => setSelectedChain(chain)}
-              className={`px-2.5 py-1 rounded text-[11px] font-mono transition-colors ${
+              className={`px-3 py-1 rounded-xl text-[11px] font-mono font-bold transition-all duration-300 ${
                 selectedChain === chain
-                  ? "bg-blue-600 text-white font-bold"
-                  : "bg-[#0b101e] border border-slate-800 text-slate-400 hover:text-slate-200"
+                  ? "bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-[0_0_15px_rgba(6,182,212,0.4)]"
+                  : "bg-[#040814] border border-slate-800 text-slate-400 hover:text-slate-100 hover:border-cyan-500/30"
               }`}
             >
-              {chain.toUpperCase()}
+              [{chain.toUpperCase()}]
             </button>
           ))}
         </div>
@@ -189,45 +203,48 @@ export default function DexTerminal() {
 
       {/* Main Tab Content */}
       {activeTab === "pools" ? (
-        <Card className="bg-[#0b101e] border-slate-800">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-semibold flex items-center space-x-2">
-              <span>Real Top Rating Pools ({query || "Trending"})</span>
-              <Badge variant="outline" className="text-[10px]">Live DEX Screener & Security Audit</Badge>
+        <Card className="relative z-10 bg-[#070d1e]/80 backdrop-blur-xl border border-cyan-500/20 shadow-xl rounded-2xl overflow-hidden">
+          <CardHeader className="flex flex-row items-center justify-between pb-3 border-b border-slate-800/80">
+            <CardTitle className="text-sm font-black font-mono tracking-wider uppercase flex items-center space-x-2">
+              <span className="text-cyan-400">❖</span>
+              <span>REAL TOP RATING POOLS ({query || "TRENDING"})</span>
+              <Badge variant="outline" className="text-[9px] font-mono border-cyan-500/40 text-cyan-300 font-bold">
+                [LIVE_DEX_AUDIT]
+              </Badge>
             </CardTitle>
-            <span className="text-[11px] text-slate-400">
-              Showing {filteredPairs.length} pools
+            <span className="text-[11px] font-mono text-slate-400">
+              FILTER: <strong className="text-cyan-300 font-bold">{selectedChain.toUpperCase()}</strong> ({filteredPairs.length} pools)
             </span>
           </CardHeader>
 
-          <CardContent>
+          <CardContent className="pt-3">
             {loading ? (
-              <div className="py-8 text-center text-xs text-slate-500 animate-pulse">
-                Searching live top DEX pools & auditing security...
+              <div className="py-12 text-center text-xs font-mono text-cyan-400/80 animate-pulse flex flex-col items-center justify-center space-y-3">
+                <div className="w-9 h-9 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin" />
+                <span>[AUDITING_ONCHAIN_CONTRACTS & LIQUIDITY...]</span>
               </div>
             ) : filteredPairs.length === 0 ? (
-              <div className="py-8 text-center text-xs text-slate-400">
+              <div className="py-12 text-center text-xs font-mono text-slate-400">
                 No liquidity pools found for the selected filter.
               </div>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs border-collapse">
                   <thead>
-                    <tr className="border-b border-slate-800 text-slate-400 uppercase text-[10px]">
-                      <th className="py-2.5 px-3">{t.pair}</th>
-                      <th className="py-2.5 px-3">{t.chainDex}</th>
-                      <th className="py-2.5 px-3">{t.priceUsd}</th>
-                      <th className="py-2.5 px-3">24h Vol</th>
-                      <th className="py-2.5 px-3">{t.liquidityUsd}</th>
-                      <th className="py-2.5 px-3">{t.change24h}</th>
-                      <th className="py-2.5 px-3">MEV & Security Risk</th>
+                    <tr className="border-b border-slate-800 text-slate-400 uppercase text-[9px] font-mono bg-[#040814]">
+                      <th className="py-3 px-3 font-bold">{t.pair}</th>
+                      <th className="py-3 px-3 font-bold">{t.chainDex}</th>
+                      <th className="py-3 px-3 font-bold">{t.priceUsd}</th>
+                      <th className="py-3 px-3 font-bold">24h Vol</th>
+                      <th className="py-3 px-3 font-bold">{t.liquidityUsd}</th>
+                      <th className="py-3 px-3 font-bold">{t.change24h}</th>
+                      <th className="py-3 px-3 font-bold">MEV Risk</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-800/60 font-mono">
                     {filteredPairs.map((p, idx) => {
                       const isSelected = selectedPair?.pairAddress === p.pairAddress;
                       
-                      // Calculate MEV & Slippage simulation
                       const mevSim = mevSlippageEngine.calculateRealisticExecution({
                         tradeSizeUsd: 1000,
                         liquidityDepthUsd: p.liquidityUsd || 10000,
@@ -241,82 +258,90 @@ export default function DexTerminal() {
                           <tr
                             key={`${p.pairAddress}_${idx}`}
                             onClick={() => setSelectedPair(isSelected ? null : p)}
-                            className={`hover:bg-[#0e162a] cursor-pointer transition-colors ${
-                              isSelected ? "bg-[#111c36]" : ""
+                            className={`hover:bg-[#0c162e] cursor-pointer transition-all duration-200 ${
+                              isSelected ? "bg-[#0f1d3e] shadow-inner" : ""
                             }`}
                           >
-                            <td className="py-2.5 px-3 font-semibold text-slate-100">
-                              <span className="font-bold text-sm text-slate-100 block">
-                                {p.baseToken.symbol} / {p.quoteToken.symbol}
-                              </span>
-                              <span className="text-[10px] text-slate-500 font-sans block truncate max-w-[120px]">
-                                {p.baseToken.name}
-                              </span>
+                            <td className="py-3 px-3 font-bold text-slate-100">
+                              <div className="flex items-center space-x-2">
+                                <div className="w-7 h-7 rounded-lg bg-cyan-950/80 border border-cyan-500/40 flex items-center justify-center font-bold text-[10px] text-cyan-300 font-mono">
+                                  {p.baseToken.symbol.slice(0, 2)}
+                                </div>
+                                <div>
+                                  <span className="font-black text-sm text-slate-100 block font-mono">
+                                    {p.baseToken.symbol} / {p.quoteToken.symbol}
+                                  </span>
+                                  <span className="text-[10px] text-slate-400 font-sans block truncate max-w-[120px]">
+                                    {p.baseToken.name}
+                                  </span>
+                                </div>
+                              </div>
                             </td>
-                            <td className="py-2.5 px-3 text-slate-400 uppercase">
-                              <Badge variant="outline" className="text-[10px] px-1.5 py-0">
+                            <td className="py-3 px-3 text-slate-400 uppercase">
+                              <Badge variant="outline" className="text-[9px] font-mono px-2 py-0.5 border-blue-500/40 text-blue-300 font-bold">
                                 {p.chainId}
                               </Badge>
-                              <span className="text-[10px] text-slate-500 block">{p.dexId}</span>
+                              <span className="text-[10px] text-slate-400 block font-bold mt-0.5">{p.dexId}</span>
                             </td>
-                            <td className="py-2.5 px-3 font-mono text-emerald-400 font-bold">
+                            <td className="py-3 px-3 font-mono text-emerald-400 font-black text-sm">
                               ${parseFloat(p.priceUsd || "0") > 0.01
                                 ? parseFloat(p.priceUsd).toFixed(4)
                                 : parseFloat(p.priceUsd || "0").toFixed(8)}
                             </td>
-                            <td className="py-2.5 px-3 text-slate-300">
+                            <td className="py-3 px-3 text-slate-200 font-bold">
                               ${p.volume24h.toLocaleString()}
                             </td>
-                            <td className="py-2.5 px-3 text-slate-300">
+                            <td className="py-3 px-3 text-slate-200 font-bold">
                               ${p.liquidityUsd.toLocaleString()}
                             </td>
-                            <td className={p.priceChange24h >= 0 ? "py-2.5 px-3 text-emerald-400 font-bold" : "py-2.5 px-3 text-rose-400 font-bold"}>
+                            <td className={p.priceChange24h >= 0 ? "py-3 px-3 text-emerald-400 font-black" : "py-3 px-3 text-rose-400 font-black"}>
                               {p.priceChange24h >= 0 ? `+${p.priceChange24h.toFixed(2)}%` : `${p.priceChange24h.toFixed(2)}%`}
                             </td>
-                            <td className="py-2.5 px-3">
+                            <td className="py-3 px-3">
                               <Badge
                                 variant={mevSim.mevThreatLevel === "HIGH" || mevSim.mevThreatLevel === "CRITICAL" ? "destructive" : "success"}
-                                className="text-[10px]"
+                                className="text-[9px] font-mono font-bold"
                               >
-                                {mevSim.mevThreatLevel} (MEV: {mevSim.mevRiskScore}/100)
+                                [{mevSim.mevThreatLevel}]
                               </Badge>
                             </td>
                           </tr>
 
-                          {/* Expanded Security & Pool Detail Drawer */}
+                          {/* Expanded Cyber Security Drawer */}
                           {isSelected && (
                             <tr key={`${p.pairAddress}_detail`}>
-                              <td colSpan={7} className="p-3 bg-[#060a14] border-y border-slate-800 font-sans text-xs">
+                              <td colSpan={7} className="p-4 bg-[#030610] border-y border-slate-800 font-sans text-xs animate-in fade-in duration-200">
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                                  <div className="p-2.5 bg-[#080e1a] rounded border border-slate-800 space-y-1">
-                                    <span className="text-emerald-400 font-bold block text-[11px]">🛡️ Token Security Check:</span>
-                                    <div className="text-[11px] text-slate-300 space-y-0.5">
-                                      <p>• Honeypot Check: <span className="text-emerald-400 font-bold">PASSED (0% Tax)</span></p>
-                                      <p>• Mint Function: <span className="text-emerald-400 font-bold">DISABLED</span></p>
-                                      <p>• Liquidity Lock: <span className="text-emerald-400 font-bold">LOCKED &gt; 1 YEAR</span></p>
+                                  <div className="p-3 bg-[#070d1e] rounded-xl border border-slate-800 space-y-1.5 font-mono">
+                                    <span className="text-emerald-400 font-bold block text-[11px] uppercase">[TOKEN_SECURITY_AUDIT]:</span>
+                                    <div className="text-[11px] text-slate-300 space-y-1">
+                                      <p>• HONEYPOT: <span className="text-emerald-400 font-bold">PASSED (0% TAX)</span></p>
+                                      <p>• MINT_FUNCTION: <span className="text-emerald-400 font-bold">DISABLED</span></p>
+                                      <p>• LIQUIDITY_LOCK: <span className="text-emerald-400 font-bold">LOCKED &gt; 1 YEAR</span></p>
                                     </div>
                                   </div>
 
-                                  <div className="p-2.5 bg-[#080e1a] rounded border border-slate-800 space-y-1">
-                                    <span className="text-blue-400 font-bold block text-[11px]">⚡ Slippage & MEV Simulation ($1,000 Order):</span>
-                                    <div className="text-[11px] font-mono text-slate-300 space-y-0.5">
-                                      <p>• Price Impact: <span className={mevSim.priceImpactPercent > 2 ? "text-rose-400" : "text-emerald-400"}>{mevSim.priceImpactPercent.toFixed(2)}%</span></p>
-                                      <p>• Gas Fee: <span className="text-slate-200">${mevSim.estimatedGasFeeUsd.toFixed(2)}</span></p>
-                                      <p>• Net Realized Edge: <span className={mevSim.realisticNetEdgePercent > 0 ? "text-emerald-400" : "text-rose-400"}>{mevSim.realisticNetEdgePercent.toFixed(2)}%</span></p>
+                                  <div className="p-3 bg-[#070d1e] rounded-xl border border-slate-800 space-y-1.5 font-mono">
+                                    <span className="text-cyan-400 font-bold block text-[11px] uppercase">[EXECUTION_SLIPPAGE_SIM]:</span>
+                                    <div className="text-[11px] text-slate-300 space-y-1">
+                                      <p>• PRICE_IMPACT: <span className={mevSim.priceImpactPercent > 2 ? "text-rose-400 font-bold" : "text-emerald-400 font-bold"}>{mevSim.priceImpactPercent.toFixed(2)}%</span></p>
+                                      <p>• EST_GAS: <span className="text-slate-100 font-bold">${mevSim.estimatedGasFeeUsd.toFixed(2)}</span></p>
+                                      <p>• NET_REALIZED_EDGE: <span className={mevSim.realisticNetEdgePercent > 0 ? "text-emerald-400 font-bold" : "text-rose-400 font-bold"}>{mevSim.realisticNetEdgePercent.toFixed(2)}%</span></p>
                                     </div>
                                   </div>
 
-                                  <div className="p-2.5 bg-[#080e1a] rounded border border-slate-800 space-y-1">
-                                    <span className="text-amber-400 font-bold block text-[11px]">📍 Pool Address & Links:</span>
-                                    <p className="text-[10px] text-slate-400 font-mono break-all">{p.pairAddress}</p>
-                                    <div className="pt-1 flex space-x-2">
+                                  <div className="p-3 bg-[#070d1e] rounded-xl border border-slate-800 space-y-1.5 font-mono">
+                                    <span className="text-amber-400 font-bold block text-[11px] uppercase">[POOL_CONTRACT]:</span>
+                                    <p className="text-[10px] text-slate-400 font-mono break-all bg-[#030610] p-1.5 rounded border border-slate-800">{p.pairAddress}</p>
+                                    <div className="pt-1 flex items-center space-x-2 font-mono">
                                       <a
                                         href={`https://dexscreener.com/${p.chainId}/${p.pairAddress}`}
                                         target="_blank"
                                         rel="noreferrer"
-                                        className="text-blue-400 hover:underline text-[11px]"
+                                        className="text-cyan-400 hover:text-cyan-300 font-bold text-[11px] flex items-center space-x-1 hover:underline"
                                       >
-                                        View on DEX Screener ↗
+                                        <span>DEX Screener</span>
+                                        <span>↗</span>
                                       </a>
                                     </div>
                                   </div>
@@ -335,84 +360,86 @@ export default function DexTerminal() {
         </Card>
       ) : (
         /* Arbitrage Net Edge Scan Tab */
-        <Card className="bg-[#0b101e] border-slate-800">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-semibold">
-              Real Cross-Venue Net Edge Arbitrage Scan ({query})
+        <Card className="relative z-10 bg-[#070d1e]/80 backdrop-blur-xl border border-cyan-500/20 shadow-xl rounded-2xl">
+          <CardHeader className="pb-2 border-b border-slate-800/80">
+            <CardTitle className="text-sm font-black font-mono tracking-wider uppercase flex items-center space-x-2">
+              <span className="text-amber-400">⚡</span>
+              <span>REAL CROSS-VENUE NET EDGE ARBITRAGE SCAN ({query})</span>
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-4">
             {loading ? (
-              <div className="py-8 text-center text-xs text-slate-500 animate-pulse">
-                Calculating real net edge after gas, fees & slippage...
+              <div className="py-12 text-center text-xs font-mono text-cyan-400/80 animate-pulse flex flex-col items-center justify-center space-y-3">
+                <div className="w-9 h-9 border-2 border-amber-400 border-t-transparent rounded-full animate-spin" />
+                <span>[CALCULATING_REAL_NET_EDGE & GAS_DEDUCTIONS...]</span>
               </div>
             ) : !arbData || !arbData.arbitrage ? (
-              <div className="py-8 text-center text-xs text-slate-400">
+              <div className="py-8 text-center text-xs font-mono text-slate-400">
                 Multiple price venues unavailable or insufficient spread for {query}.
               </div>
             ) : (
-              <div className="space-y-4 text-xs">
-                {/* Summary KPIs */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 bg-[#080e1a] p-3 rounded border border-slate-800 font-mono">
+              <div className="space-y-4 text-xs font-mono">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 bg-[#040814] p-3.5 rounded-xl border border-slate-800">
                   <div>
-                    <span className="text-slate-500 block text-[10px]">{t.grossSpread}:</span>
-                    <span className="font-bold text-amber-400 text-sm">
+                    <span className="text-slate-400 block text-[9px] font-bold uppercase">{t.grossSpread}:</span>
+                    <span className="font-black text-amber-400 text-base">
                       {arbData.arbitrage.grossSpreadPercent.toFixed(2)}%
                     </span>
                   </div>
                   <div>
-                    <span className="text-slate-500 block text-[10px]">{t.venuesEvaluated}:</span>
-                    <span className="font-medium text-slate-200 text-[11px] font-sans">
+                    <span className="text-slate-400 block text-[9px] font-bold uppercase">{t.venuesEvaluated}:</span>
+                    <span className="font-bold text-slate-200 text-[11px]">
                       {arbData.sources.map((s) => s.source).join(" vs ")}
                     </span>
                   </div>
                   <div>
-                    <span className="text-slate-500 block text-[10px]">{t.lowestVenue}:</span>
-                    <span className="font-mono text-emerald-400">
+                    <span className="text-slate-400 block text-[9px] font-bold uppercase">{t.lowestVenue}:</span>
+                    <span className="text-emerald-400 font-black">
                       ${arbData.sources[0]?.price.toLocaleString()}
                     </span>
                   </div>
                   <div>
-                    <span className="text-slate-500 block text-[10px]">{t.highestVenue}:</span>
-                    <span className="font-mono text-rose-400">
+                    <span className="text-slate-400 block text-[9px] font-bold uppercase">{t.highestVenue}:</span>
+                    <span className="text-rose-400 font-black">
                       ${arbData.sources[arbData.sources.length - 1]?.price.toLocaleString()}
                     </span>
                   </div>
                 </div>
 
-                {/* Evaluations Table */}
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-xs border-collapse">
                     <thead>
-                      <tr className="border-b border-slate-800 text-slate-400 uppercase text-[10px]">
-                        <th className="py-2.5 px-3">{t.tradeSize}</th>
-                        <th className="py-2.5 px-3">{t.grossProfit}</th>
-                        <th className="py-2.5 px-3">{t.netEdge}</th>
-                        <th className="py-2.5 px-3">{t.netProfitUsd}</th>
-                        <th className="py-2.5 px-3">{t.status}</th>
+                      <tr className="border-b border-slate-800 text-slate-400 uppercase text-[9px] bg-[#040814]">
+                        <th className="py-2.5 px-3 font-bold">{t.tradeSize}</th>
+                        <th className="py-2.5 px-3 font-bold">{t.grossProfit}</th>
+                        <th className="py-2.5 px-3 font-bold">{t.netEdge}</th>
+                        <th className="py-2.5 px-3 font-bold">{t.netProfitUsd}</th>
+                        <th className="py-2.5 px-3 font-bold">{t.status}</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-800/60 font-mono">
                       {arbData.arbitrage.evaluations.map((e) => (
-                        <tr key={e.tradeSizeUsd} className="hover:bg-[#0e162a]">
-                          <td className="py-2.5 px-3 font-bold text-slate-100 font-mono">
+                        <tr key={e.tradeSizeUsd} className="hover:bg-[#0c162e]">
+                          <td className="py-3 px-3 font-black text-slate-100 font-mono text-sm">
                             ${e.tradeSizeUsd.toLocaleString()}
                           </td>
-                          <td className="py-2.5 px-3 text-amber-400 font-mono">
+                          <td className="py-3 px-3 text-amber-400 font-black">
                             +${e.grossProfitUsd.toFixed(2)}
                           </td>
-                          <td className={e.netEdgePercent > 0 ? "py-2.5 px-3 text-emerald-400 font-bold" : "py-2.5 px-3 text-rose-400 font-bold"}>
+                          <td className={e.netEdgePercent > 0 ? "py-3 px-3 text-emerald-400 font-black" : "py-3 px-3 text-rose-400 font-black"}>
                             {e.netEdgePercent > 0 ? `+${e.netEdgePercent.toFixed(2)}%` : `${e.netEdgePercent.toFixed(2)}%`}
                           </td>
-                          <td className={e.netProfitUsd > 0 ? "py-2.5 px-3 text-emerald-400 font-bold" : "py-2.5 px-3 text-rose-400 font-bold"}>
+                          <td className={e.netProfitUsd > 0 ? "py-3 px-3 text-emerald-400 font-black" : "py-3 px-3 text-rose-400 font-black"}>
                             {e.netProfitUsd > 0 ? `+$${e.netProfitUsd.toFixed(2)}` : `-$${Math.abs(e.netProfitUsd).toFixed(2)}`}
                           </td>
-                          <td className="py-2.5 px-3 font-sans">
+                          <td className="py-3 px-3 font-sans">
                             {e.isValidArbitrage ? (
-                              <Badge variant="success">{t.actionableArb}</Badge>
+                              <Badge variant="success" className="font-mono font-bold bg-emerald-950 border border-emerald-500/40 text-emerald-400">
+                                [{t.actionableArb}]
+                              </Badge>
                             ) : (
-                              <Badge variant="destructive" title={e.rejectionReason}>
-                                {t.rejectedFees}
+                              <Badge variant="destructive" title={e.rejectionReason} className="font-mono font-bold">
+                                [{t.rejectedFees}]
                               </Badge>
                             )}
                           </td>
