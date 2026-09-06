@@ -5,6 +5,7 @@ import Link from "next/link";
 import { GlobalMarket } from "@/components/dashboard/GlobalMarket";
 import { PriceTicker } from "@/components/dashboard/PriceTicker";
 import { SystemHealth } from "@/components/dashboard/SystemHealth";
+import { AiCopilot } from "@/components/dashboard/AiCopilot";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -59,11 +60,11 @@ export default function Dashboard() {
           <h1 className="text-xl font-bold tracking-tight bg-gradient-to-r from-blue-400 via-indigo-300 to-emerald-400 bg-clip-text text-transparent">
             GOD — Global Opportunity Detector
           </h1>
-          <Badge variant="outline" className="text-[10px]">v0.2.0 • 100% Real Data</Badge>
+          <Badge variant="outline" className="text-[10px]">v0.3.0 • 100% Real Data</Badge>
         </div>
         <div className="flex items-center space-x-4">
           <Link href="/dex">
-            <Button variant="outline" size="sm">DEX Intelligence</Button>
+            <Button variant="outline" size="sm">DEX Intelligence & Arbitrage</Button>
           </Link>
           <SystemHealth />
         </div>
@@ -75,7 +76,7 @@ export default function Dashboard() {
 
       {/* Main Terminal View */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {/* Left: Opportunities Terminal (2 cols) */}
+        {/* Left: Opportunities Terminal & AI Copilot (2 cols) */}
         <div className="lg:col-span-2 space-y-4">
           <Card className="bg-[#0b101e] border-slate-800">
             <CardHeader className="flex flex-row items-center justify-between">
@@ -156,6 +157,9 @@ export default function Dashboard() {
               )}
             </CardContent>
           </Card>
+
+          {/* AI Copilot */}
+          <AiCopilot />
         </div>
 
         {/* Right: AI Agents & Principles (1 col) */}
@@ -174,16 +178,20 @@ export default function Dashboard() {
                 <Badge variant="success">Active</Badge>
               </div>
               <div className="flex justify-between items-center py-1 border-b border-slate-800/60">
+                <span className="text-slate-300">Token Security Analyst</span>
+                <Badge variant="success">Active</Badge>
+              </div>
+              <div className="flex justify-between items-center py-1 border-b border-slate-800/60">
+                <span className="text-slate-300">Arbitrage Net Edge Analyst</span>
+                <Badge variant="success">Active</Badge>
+              </div>
+              <div className="flex justify-between items-center py-1 border-b border-slate-800/60">
                 <span className="text-slate-300">Risk Manager Agent</span>
                 <Badge variant="success">Active (Veto Power)</Badge>
               </div>
               <div className="flex justify-between items-center py-1 border-b border-slate-800/60">
-                <span className="text-slate-300">Data Quality Agent</span>
+                <span className="text-slate-300">Contrarian AI Judge</span>
                 <Badge variant="success">Active</Badge>
-              </div>
-              <div className="flex justify-between items-center py-1 border-b border-slate-800/60">
-                <span className="text-slate-300">On-Chain / Whale Agent</span>
-                <Badge variant="outline">Proxy Mode</Badge>
               </div>
             </CardContent>
           </Card>
@@ -194,8 +202,8 @@ export default function Dashboard() {
             </CardHeader>
             <CardContent className="space-y-2 text-xs text-slate-300">
               <p>• <strong>100% Real Data:</strong> Direct connection to Binance, CoinGecko, DEX Screener, Alternative.me.</p>
-              <p>• <strong>0% Mock Data:</strong> Unconfigured providers mark status as <code className="text-amber-400">UNAVAILABLE</code>.</p>
-              <p>• <strong>Probabilistic Language:</strong> Score reflects setup alignment, not guaranteed profit probability.</p>
+              <p>• <strong>Grounded Reasoning:</strong> AI responses built from retrieved data with source citations.</p>
+              <p>• <strong>Contrarian Analysis:</strong> AI actively searches for reasons why a trade thesis could fail.</p>
               <p>• <strong>Risk Veto:</strong> Risk Engine automatically rejects opportunities with high spread or illiquidity.</p>
             </CardContent>
           </Card>
